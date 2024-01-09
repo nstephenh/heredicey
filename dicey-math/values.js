@@ -70,7 +70,7 @@ class Die {
 
     constructor(sides = 6, times = undefined) {
         this.sides = sides;
-        this.times = times == undefined ? new NumberValue(1) : times;
+        this.times = times === undefined ? new NumberValue(1) : times;
     }
 
     denseCloud() {
@@ -78,7 +78,7 @@ class Die {
     }
 
     tx() {
-        if (this.sides.type == "number") {
+        if (this.sides.type === "number") {
             let total = this.sides.value;
             if (total == 0) return new Cloud({"[0]": {k: [0], w: 1}}, 1, true);
 
@@ -88,7 +88,7 @@ class Die {
             }
             return ntimes(this.times, C.done());
         }
-        if (this.sides.type == "set" && this.sides.collapse) {
+        if (this.sides.type === "set" && this.sides.collapse) {
             let C = new CloudBuilder();
             for (let i = 0; i < this.sides.elements.length; ++i) {
                 C.add([this.sides.elements[i].value], 1, [this]);
@@ -103,7 +103,7 @@ class Die {
     }
 
     cloud() {
-        if (this.times.type == "number" && this.times.value == 1)
+        if (this.times.type === "number" && this.times.value === 1)
             return this.tx().denseCloud();
         else return this.tx().cloud();
     }
@@ -179,7 +179,7 @@ class SetValue {
         while (clouds.length > 1) {
             let cn = [];
             for (let i = 0; i < clouds.length; i += 2) {
-                if (clouds.length == i + 1) {
+                if (clouds.length === i + 1) {
                     cn.push(clouds[i]);
                     break;
                 }
@@ -196,7 +196,7 @@ class SetValue {
         while (clouds.length > 1) {
             let cn = [];
             for (let i = 0; i < clouds.length; i += 2) {
-                if (clouds.length == i + 1) {
+                if (clouds.length === i + 1) {
                     cn.push(clouds[i]);
                     break;
                 }
@@ -249,14 +249,14 @@ class Cloud {
     }
 
     number() {
-        if (this.values.length != 1) throw new Error("Wanted a single value.");
-        if (this.values[0].k.length != 1) throw new Error("Wanted a single value.");
+        if (this.values.length !== 1) throw new Error("Wanted a single value.");
+        if (this.values[0].k.length !== 1) throw new Error("Wanted a single value.");
         return new NumberValue(this.values[0].k[0]);
     }
 
     collapse(fn) {
-        if (fn == undefined && this.dense) return this;
-        if (fn == undefined)
+        if (fn === undefined && this.dense) return this;
+        if (fn === undefined)
             fn = (k) => [
                 k.reduce((v, e) => {
                     if (typeof v == "number" && typeof e == "number") return v + e;
@@ -276,12 +276,14 @@ class Cloud {
         return C.done();
     }
 
-    // Takes a function that given a vaue returns a cloud;
+    // Takes a function that given a value returns a cloud;
     transform(fn) {
         let C = new CloudBuilder();
-
         for (let v of this.values) {
             let rv = fn(v.k, v).cloud();
+            if (rv === undefined) {
+                continue //Prevent error, does this change the data?
+            }
             for (let nv of rv.values) {
                 let dx = (nv.w / rv.total) * v.w;
                 C.add(nv.k, dx);
@@ -375,9 +377,9 @@ class BinaryOperation {
 
             case "==":
             case "=":
-                return left == right ? 1 : 0;
+                return left === right ? 1 : 0;
             case "!=":
-                return left != right ? 1 : 0;
+                return left !== right ? 1 : 0;
         }
     }
 
@@ -443,7 +445,7 @@ class BinaryOperation {
                             .collapse((k) => [parseFloat(k) + n])
                         : new NumberValue(n)
                 );
-                if (sources.length == 0) cb.add(e.k, e.w);
+                if (sources.length === 0) cb.add(e.k, e.w);
                 else {
                     let d = new SetValue(sources).cloud();
                     for (let o of d.values) {

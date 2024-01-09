@@ -32,9 +32,13 @@ class ParseResult {
     get result() {
         const bal_skill = 4; //4+ to hit
         const num_shots = 4;
+        const weapon_strength = 4;
+        const target_toughness = 4;
         const WEAPON_AP = 6;
         const UNIT_SAVE = 3; //X + save
         let unit_save = UNIT_SAVE
+
+        let toughness_target = Math.max(weapon_strength-target_toughness + 4, 2)
 
         if (WEAPON_AP <= unit_save) {
             unit_save = 7
@@ -73,8 +77,8 @@ class ParseResult {
         this.parsed.type = "block";
         this.parsed.body[0] = {
             "type": "output",
-            "expression": successful_hit_expressions,
-            "text": `Successful hits with ${num_shots} shots at BS ${bal_skill}`,//`Fail a ${unit_save}+ Save vs an ${num_shots} shots at ${bal_skill}, STR TBD, AP ${WEAPON_AP} weapon`,
+            "expression": saves_expression,
+            "text": `Fail a ${unit_save}+ Save vs an ${num_shots} shots at ${bal_skill}, STR TBD, AP ${WEAPON_AP} weapon`,
             "name": null
         }
         if (!this.value) this.value = valueize(this.parsed);
