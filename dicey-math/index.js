@@ -42,67 +42,36 @@ class ParseResult {
         const target_toughness = 4;
         let target_save = 3; //X+ save
 
-        let to_wound_roll = Math.max(weapon_strength - target_toughness + 4, 2)
+        let to_wound_t_n = Math.max(weapon_strength - target_toughness + 4, 2)
 
         if (WEAPON_AP <= target_save) {
             target_save = 7
         }
 
+        const successful_hit = on_target_number(to_hit)
+        // display_wound is all wounding hits, no matter if they're special or not.
+        const display_wound = multiply(successful_hit, on_target_number(to_wound_t_n))
 
-        const successful_hits = {
-            "type": "math",
-            "right": to_hit,
-            "left": {
-                "type": "die",
-                "times": num_shots,
-                "sides": 6
-            },
-            "m": "cs",
-            "op": ">="
-        }
+
+        console.log("Wounding on " + to_wound_t_n)
         if (breaching_value < 7) {
-            to_wound_roll = to_wound_roll - (7 - breaching_value)
+            to_wound_t_n = to_wound_t_n + (7 - breaching_value)
+            console.log("Regular wounding on " + to_wound_t_n)
+            console.log("Breaching on " + breaching_value)
             // Offset our regular wound rolls
         }
 
-        const successful_wounds = {
-            "type": "math",
-            "right": to_wound_roll,
-            "left": multiply_clouds({
-                "type": "die",
-                "sides": 6
-            }, successful_hits),
-            "m": "cs",
-            "op": ">="
-        }
+        const no_special_rule_wounds = multiply(successful_hit, on_target_number(to_wound_t_n))
 
 
-        const failed_saves = {
-            "type": "math",
-            "left": multiply_clouds({
-                "type": "die",
-                "sides": 6
-            }, successful_wounds),
-            "right": target_save,
-            "m": "cs",
-            "op": "<"
-        }
+        const failed_saves = multiply(no_special_rule_wounds, failed_target_number(target_save))
 
         let final_damage = failed_saves
         let wounds_from_breaching = undefined;
 
         if (breaching_value < 7) {
-            //Get the sum? of failed saves with non-breaching and successful breaching rolls.
-            wounds_from_breaching = {
-                "type": "math",
-                "left": multiply_clouds({
-                    "type": "die",
-                    "sides": 6
-                }, successful_hits),
-                "right": breaching_value,
-                "m": "cs",
-                "op": "<"
-            }
+            //Get the sum of failed saves with non-breaching and successful breaching rolls.
+            wounds_from_breaching = multiply(successful_hit, on_target_number(breaching_value))
             final_damage = sum_results(failed_saves, wounds_from_breaching)
         }
 
@@ -110,12 +79,12 @@ class ParseResult {
         this.parsed.type = "block";
         this.parsed.body[0] = {
             "type": "output",
-            "expression": successful_hits,
+            "expression": n_dice(successful_hit, num_shots),
             "text": `Hits from ${num_shots} shots at BS ${bal_skill}`,
         }
         this.parsed.body[1] = {
             "type": "output",
-            "expression": successful_wounds,
+            "expression": n_dice(display_wound, num_shots),
             "text": `Wounds from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength} weapon on a T ${target_toughness} target`,
         }
 
@@ -126,21 +95,21 @@ class ParseResult {
 
         this.parsed.body[2] = {
             "type": "output",
-            "expression": final_damage,
-            "text": `Wounds from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength}, AP ${WEAPON_AP} ${with_breaching} weapon on a T ${target_toughness}, ${target_save}+ target`,
+            "expression": n_dice(final_damage, num_shots),
+            "text": `Unsaved wounds from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength}, AP ${WEAPON_AP} ${with_breaching} weapon on a T ${target_toughness}, ${target_save}+ SV target`,
         }
-        if (breaching_value < 7) {
-            this.parsed.body[3] = {
-                "type": "output",
-                "expression": failed_saves,
-                "text": `Non-breaching wounds`,
-            }
-            this.parsed.body[4] = {
-                "type": "output",
-                "expression": wounds_from_breaching,
-                "text": `Wounds from Breaching`,
-            }
-        }
+        // if (breaching_value < 7) {
+        //     this.parsed.body[3] = {
+        //         "type": "output",
+        //         "expression": n_dice(failed_saves, num_shots),
+        //         "text": `Non-breaching wounds`,
+        //     }
+        //     this.parsed.body[4] = {
+        //         "type": "output",
+        //         "expression": n_dice(wounds_from_breaching, num_shots),
+        //         "text": `Wounds from Breaching`,
+        //     }
+        // }
         if (!this.value) this.value = valueize(this.parsed)
         return this.value;
     }
@@ -157,13 +126,51 @@ class ParseResult {
     }
 }
 
-function multiply_clouds(a, b) {
+function on_target_number(target_number) {
+    return {
+        "type": "math",
+        "right": target_number,
+        "left": {
+            "type": "die",
+            "times": 1,
+            "sides": 6
+        },
+        "m": "cs",
+        "op": ">="
+    }
+}
+
+function failed_target_number(target_number) {
+    return {
+        "type": "math",
+        "right": target_number,
+        "left": {
+            "type": "die",
+            "times": 1,
+            "sides": 6
+        },
+        "m": "cs",
+        "op": "<"
+    }
+}
+
+function n_dice(expression, dice) {
     return {
         "type": "call",
         "name": "repeat",
-        "args": [a, b]
+        "args": [expression, dice]
     }
 }
+
+function multiply(a, b) {
+    return {
+        "type": "math",
+        "left": a,
+        "right": b,
+        "op": "*"
+    }
+}
+
 
 function sum_results(a, b) {
     return {

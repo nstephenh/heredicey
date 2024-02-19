@@ -392,20 +392,38 @@ class BinaryOperation {
     }
 
     cloud() {
-        console.log(this.op)
         if (this.op === "++") {            //Add the probabilities, not the values.
             let lc = this.left.cloud();
             let rc = this.right.cloud();
-            console.log(lc)
-            console.log(rc)
+            let largest_sample = Math.max(lc.total, rc.total)
+
+            console.log("Left: ", lc)
+            console.log("Right: ", rc)
+            console.log("Largest total: ", largest_sample)
             let cb = new CloudBuilder();
-            for (let e of this.left.cloud().values) {
+            for (let e of lc.values) {
+                if (e.k[0] < 1){
+                    continue
+                }
+                if (lc.total !== largest_sample){
+                    e.w = (e.w * largest_sample)/lc.total
+                }
+                console.log(e.k, e.w)
                 cb.add(e.k, e.w)
             }
-            for (let e of this.right.cloud().values) {
+            for (let e of rc.values) {
+                if (e.k[0] < 1){
+                    continue
+                }
+                if (rc.total !== largest_sample){
+                    e.w = (e.w * largest_sample)/rc.total
+                }
                 cb.add(e.k, e.w)
             }
-            return cb.done();
+            cb.add([0], largest_sample-cb.total) // fill in all the zeroes
+            let new_cloud = cb.done()
+            console.log("Result: ", new_cloud)
+            return new_cloud;
         }
         if (this.op === "dl") {
             let lc = this.left.cloud();
