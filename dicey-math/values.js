@@ -392,6 +392,21 @@ class BinaryOperation {
     }
 
     cloud() {
+        console.log(this.op)
+        if (this.op === "++") {            //Add the probabilities, not the values.
+            let lc = this.left.cloud();
+            let rc = this.right.cloud();
+            console.log(lc)
+            console.log(rc)
+            let cb = new CloudBuilder();
+            for (let e of this.left.cloud().values) {
+                cb.add(e.k, e.w)
+            }
+            for (let e of this.right.cloud().values) {
+                cb.add(e.k, e.w)
+            }
+            return cb.done();
+        }
         if (this.op === "dl") {
             let lc = this.left.cloud();
             let rc = this.right.denseCloud();
