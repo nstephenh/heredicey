@@ -45,7 +45,10 @@ class ParseResult {
         const target_toughness = 4;
         let target_save = 3; //X+ save
 
-        let to_wound_t_n = Math.max(weapon_strength - target_toughness + 4, 2)
+        let to_wound_t_n = Math.max(4 - (weapon_strength - target_toughness), 2)
+        if (to_wound_t_n === 7){
+            to_wound_t_n = 6 // There are 2 entries of 6+ on the table, so even if 3 below still hit.
+        }
 
         if (WEAPON_AP <= target_save) {
             target_save = 7
