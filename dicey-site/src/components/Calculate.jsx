@@ -28,6 +28,7 @@ import OptionBar from "./OptionBar";
 
 import * as state from "../state";
 import WeaponInput from "./WeaponInput";
+import TargetInput from "./TargetInput";
 
 function rollOn(l) {
   let acc = 100 * Math.random();
@@ -282,6 +283,8 @@ export default function Calculate() {
   return (
     <>
       <WeaponInput />
+      <TargetInput />
+
       <Card className={classes.bar}>
         <CardActions className={classes.optionbar}>
           <OptionBar />

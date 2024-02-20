@@ -4,6 +4,7 @@ import {useRecoilState, useRecoilValue} from "recoil";
 import {makeStyles} from "@material-ui/core/styles";
 
 import * as state from "../state";
+import {targetToughness} from "../state";
 
 const useStyles = makeStyles((theme) => ({
     textbox: {
@@ -16,68 +17,69 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function WeaponInput() {
+export default function TargetInput() {
     const classes = useStyles();
-    const [weaponName, setWeaponName] = useRecoilState(state.weaponName);
-    const [ws_or_bs, setWsOrBs] = useRecoilState(state.ws_or_bs);
-    const [str, setStr] = useRecoilState(state.str);
-    const [ap, setAp] = useRecoilState(state.ap);
-    const [shots, setShots] = useRecoilState(state.shots);
+    const [targetName, setTargetName] = useRecoilState(state.targetName);
 
+    const [ws, setWs] = useRecoilState(state.targetWS);
+    const [t, setT] = useRecoilState(state.targetToughness);
+    const [sv, setSv] = useRecoilState(state.targetSave);
+    const [invuln, setInvuln] = useRecoilState(state.targetInvuln);
 
 
     return (
         <Card>
             <CardContent className={classes.card}>
                 <TextField
-                    id="outlined-weapon-name"
-                    label="Weapon Name"
+                    id="outlined-target-name"
+                    label="Target Name"
                     type="text"
-                    value={weaponName}
+                    value={targetName}
                     InputLabelProps={{
                         shrink: true,
                     }}
-                    onChange={(e) => setWeaponName(e.target.value)}
+                    onChange={(e) => setTargetName(e.target.value)}
                 />
                 <TextField
-                    id="outlined-ws_or_bs"
-                    label="WS or BS"
+                    id="outlined-ws"
+                    label="WS (for melee)"
                     type="number"
-                    value={ws_or_bs}
+                    value={ws}
                     InputLabelProps={{
                         shrink: true,
                     }}
-                    onChange={(e) => setWsOrBs(e.target.value)}
+                    onChange={(e) => setWs(e.target.value)}
+
                 />
                 <TextField
-                    id="outlined-str"
-                    label="Strength"
+                    id="outlined-tough"
+                    label="Toughness"
                     type="number"
-                    value={str}
+                    value={t}
                     InputLabelProps={{
                         shrink: true,
                     }}
-                    onChange={(e) => setStr(e.target.value)}
+                    onChange={(e) => setT(e.target.value)}
                 />
                 <TextField
-                    id="outlined-ap"
-                    label="AP"
+                    id="outlined-save"
+                    label="Save"
                     type="number"
-                    value={ap}
+                    value={sv}
                     InputLabelProps={{
                         shrink: true,
                     }}
-                    onChange={(e) => setAp(e.target.value)}
+                    onChange={(e) => setSv(e.target.value)}
                 />
                 <TextField
-                    id="outlined-shots"
-                    label="Shots"
+                    id="outlined-invuln"
+                    label="Invulnerable Save"
                     type="number"
-                    value={shots}
+                    value={invuln}
                     InputLabelProps={{
                         shrink: true,
                     }}
-                    onChange={(e) => setShots(e.target.value)}
+                    onChange={(e) => setInvuln(e.target.value)}
                 />
             </CardContent>
         </Card>

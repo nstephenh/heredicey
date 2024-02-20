@@ -9,21 +9,35 @@ let workerInstance = worker();
 export let reload = atom({key: "reload", default: Math.random()});
 export let query = atom({key: "query", default: "output 3d6"});
 
+export let weaponName = atom({key: "weaponName", default: "Sicaran Accelerator Autocannon"})
 export let ws_or_bs = atom({key: "ws_or_bs", default: "4"})
-export let str = atom({key: "str", default: "4"})
+export let str = atom({key: "str", default: "7"})
 export let ap = atom({key: "ap", default: "4"})
+export let shots = atom({key: "shots", default: "8"})
 
-export let shots = atom({key: "shots", default: "2"})
+export let targetName = atom({key: "targetName", default: "Contemptor"})
+export let targetWS = atom({key: "targetWS", default: "5"})
+export let targetToughness = atom({key: "targetToughness", default: "7"})
+export let targetSave = atom({key: "targetSave", default: "2"})
+export let targetInvuln = atom({key: "targetInvuln", default: "5"})
 
 
 export let parsed = selector({
     key: "parsed",
     get: ({get}) => {
         let expression = {
+            weaponName: get(weaponName),
             ws_or_bs: Number(get(ws_or_bs)),
             str: Number(get(str)),
             ap: Number(get(ap)),
             shots: Number(get(shots)),
+
+            targetName: get(targetName),
+            targetWS: Number(get(targetWS)),
+            targetToughness: Number(get(targetToughness)),
+            targetSave: Number(get(targetSave)),
+            targetInvuln: Number(get(targetInvuln)),
+
         };
         try {
             //Still need a state to override, hence leaving in 3d6
