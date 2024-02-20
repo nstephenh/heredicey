@@ -9,11 +9,11 @@ let workerInstance = worker();
 export let reload = atom({key: "reload", default: Math.random()});
 export let query = atom({key: "query", default: "output 3d6"});
 
-export let weaponName = atom({key: "weaponName", default: "Sicaran Accelerator Autocannon"})
+export let weaponName = atom({key: "weaponName", default: "1/4th of Accelerator Autocannon"})
 export let ws_or_bs = atom({key: "ws_or_bs", default: "4"})
 export let str = atom({key: "str", default: "7"})
 export let ap = atom({key: "ap", default: "4"})
-export let shots = atom({key: "shots", default: "8"})
+export let shots = atom({key: "shots", default: "2"})
 export let breaching = atom({key: "breaching", default: "7"})
 export let rending = atom({key: "rending", default: "6"})
 export let exoshock = atom({key: "exoshock", default: "6"})
@@ -25,6 +25,7 @@ export let targetWS = atom({key: "targetWS", default: "5"})
 export let targetToughness = atom({key: "targetToughness", default: "7"})
 export let targetSave = atom({key: "targetSave", default: "2"})
 export let targetInvuln = atom({key: "targetInvuln", default: "5"})
+export let isVehicle = atom({key: "isVehicle", default: false})
 
 
 export let parsed = selector({

@@ -56,8 +56,28 @@ class ParseResult {
             },
             {name: "Power Armour", t: 4, save: 3, invuln: 7},
             {name: "Cataphractii", t: 4, save: 2, invuln: 4},
+            {name: "Rhino", t: 11},
         ]) {
+
             let special_rules_text_arr = []
+            const successful_hit = on_target_number(to_hit)
+
+            //Handling for vehicles
+            if (target.t >= 10){
+                const to_glance_tn = target.t - weapon_strength
+                console.log("Glancing on " + to_glance_tn)
+                //TODO: Make this instead compare a d6 (or d6+d3) to a target number
+                const glance_and_pen = multiply(successful_hit, on_target_number(to_glance_tn))
+
+                const special_rules_text = special_rules_text_arr.length ? "with " + special_rules_text_arr.join(", ") : "";
+                this.parsed.body[output_counter++] = {
+                    "type": "output",
+                    "expression": n_dice(glance_and_pen, num_shots),
+                    "text": `Lost hull points on ${target.name} (T${target.t}) from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength}, AP ${WEAPON_AP} ${special_rules_text} weapon`,
+                }
+                continue;
+            }
+            //Handling for non-vehicles
             let applied_rend_to_wound = false;
 
             let to_wound_t_n = Math.max(4 - (weapon_strength - target.t), 2)
@@ -82,7 +102,6 @@ class ParseResult {
                 }
             }
 
-            const successful_hit = on_target_number(to_hit)
             // display_wound is all wounding hits, no matter if they're special or not.
             const display_wound = multiply(successful_hit, on_target_number(to_wound_t_n))
 
