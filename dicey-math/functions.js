@@ -96,8 +96,6 @@ function mean(v) {
  * @example <kbd>repeat(d6, 3)</kbd> = <kbd>3d6</kbd>
  */
 function repeat(a, b) {
-  console.log(a)
-  console.log(b)
   arity(this, 2);
   return ntimes(b, a, true);
 }
