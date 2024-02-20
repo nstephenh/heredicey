@@ -1,6 +1,6 @@
 import React from "react";
-import {Card, CardContent, TextField} from "../material";
-import {useRecoilState, useRecoilValue} from "recoil";
+import {Card, CardContent, TextField, Checkbox, FormControlLabel} from "../material";
+import {useRecoilState} from "recoil";
 import {makeStyles} from "@material-ui/core/styles";
 
 import * as state from "../state";
@@ -23,6 +23,11 @@ export default function WeaponInput() {
     const [str, setStr] = useRecoilState(state.str);
     const [ap, setAp] = useRecoilState(state.ap);
     const [shots, setShots] = useRecoilState(state.shots);
+
+    const [breaching, setBreaching] = useRecoilState(state.breaching);
+    const [rending, setRending] = useRecoilState(state.rending);
+    const [exoshock, setExoshock] = useRecoilState(state.exoshock);
+    const [sunder, setSunder] = useRecoilState(state.sunder);
 
 
 
@@ -79,6 +84,51 @@ export default function WeaponInput() {
                     }}
                     onChange={(e) => setShots(e.target.value)}
                 />
+            </CardContent>
+            <CardContent className={classes.card}>
+                <TextField
+                    id="outlined-breaching"
+                    label="Breaching (X+)"
+                    type="number"
+                    value={breaching}
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+                    onChange={(e) => setBreaching(e.target.value)}
+                />
+                <TextField
+                    id="outlined-rending"
+                    label="Rending (X+)"
+                    type="number"
+                    value={rending}
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+                    onChange={(e) => setRending(e.target.value)}
+                />
+                <TextField
+                    id="outlined-exoshock"
+                    label="Exoshock (X+)"
+                    type="number"
+                    value={exoshock}
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+                    onChange={(e) => setExoshock(e.target.value)}
+                />
+
+                <FormControlLabel
+                    value="top"
+                    control={
+                        <Checkbox
+                            id='sunder'
+                            checked={sunder}
+                            onChange={(e) => setSunder(e.target.checked)}
+                        />}
+                    label="Sunder"
+                    labelPlacement="top"
+                />
+
             </CardContent>
         </Card>
     );

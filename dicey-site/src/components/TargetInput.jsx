@@ -1,6 +1,6 @@
 import React from "react";
 import {Card, CardContent, TextField} from "../material";
-import {useRecoilState, useRecoilValue} from "recoil";
+import {useRecoilState} from "recoil";
 import {makeStyles} from "@material-ui/core/styles";
 
 import * as state from "../state";

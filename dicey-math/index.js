@@ -31,7 +31,7 @@ class ParseResult {
      */
     get result() {
         console.log("Object on call to results", this)
-        this.parsed = {body: [], input: this.parsed.input} // Reset this.parsed so we can override the 3d6 result.
+        this.parsed = {body: [], input: this.parsed.input} // Reset this.parsed, so we can override the 3d6 result.
 
 
         const bal_skill = this.parsed.input.ws_or_bs; //X+ to hit
@@ -42,7 +42,6 @@ class ParseResult {
         const num_shots = this.parsed.input.shots;
         const weapon_strength = this.parsed.input.str;
         const WEAPON_AP = this.parsed.input.ap;
-        const breaching_value = 7;
 
         let show_hits_and_initial_wounds = false
 
@@ -58,10 +57,18 @@ class ParseResult {
             {name: "Power Armour", t: 4, save: 3, invuln: 7},
             {name: "Cataphractii", t: 4, save: 2, invuln: 4},
         ]) {
+            let special_rules_text_arr = []
+            let applied_rend_to_wound = false;
 
             let to_wound_t_n = Math.max(4 - (weapon_strength - target.t), 2)
             if (to_wound_t_n === 7) {
                 to_wound_t_n = 6 // There are 2 entries of 6+ on the table, so even if 3 below still hit.
+            }
+            if (this.parsed.input.rending < to_wound_t_n) {
+                to_wound_t_n = this.parsed.input.rending
+                special_rules_text_arr.push(`Rending (${this.parsed.input.rending}+)`)
+                applied_rend_to_wound = true;
+
             }
 
             let save_description = `${target.save}+ save`
@@ -80,31 +87,44 @@ class ParseResult {
             const display_wound = multiply(successful_hit, on_target_number(to_wound_t_n))
 
 
+
             console.log("Wounding on " + to_wound_t_n)
-            if (breaching_value < 7) {
-                to_wound_t_n = to_wound_t_n + (7 - breaching_value)
-                console.log("Regular wounding on " + to_wound_t_n)
-                console.log("Breaching on " + breaching_value)
-                // Offset our regular wound rolls
+
+            let resolve_at_ap2_threshold = Math.min(this.parsed.input.breaching, this.parsed.input.rending)
+
+            if (resolve_at_ap2_threshold < 7) {
+                const number_of_ap2_sides = (7 - resolve_at_ap2_threshold)
+                console.log("Regular wounding on " + (7 - to_wound_t_n - number_of_ap2_sides) + " sides")
+                to_wound_t_n = to_wound_t_n + number_of_ap2_sides
+                console.log("Therefore, regular wounding on a " + to_wound_t_n + "+")
+                console.log("AP2 on a " + resolve_at_ap2_threshold + "+")
+                if (this.parsed.input.breaching < 7) {
+                    special_rules_text_arr.push(`Breaching (${this.parsed.input.breaching}+)`)
+                }
+                if ((this.parsed.input.rending < 7) && !applied_rend_to_wound) {
+                    // Don't add rending to the rules list if it already affected the to-wound roll
+                    special_rules_text_arr.push(`Rending (${this.parsed.input.rending}+)`)
+                }
+                if (target.invuln < 7) {
+                    save_description += `, ${target.invuln}+ invulnerable save against wounds resolved at AP2`
+                } else {
+                    save_description += `, no save against wounds resolved at AP2`
+                }
             }
 
+            // Roll to wound
             const no_special_rule_wounds = multiply(successful_hit, on_target_number(to_wound_t_n))
+            const ap2_wounds = multiply(successful_hit, on_target_number(resolve_at_ap2_threshold))
 
-
+            // Roll saves
             const failed_saves = multiply(no_special_rule_wounds, failed_target_number(target.save))
+            const failed_invulns = multiply(ap2_wounds, failed_target_number(target.invuln))
 
-            let final_damage = failed_saves
-            let wounds_from_breaching = undefined;
+            // Sum both types of failed save
+            const final_damage = sum_results(failed_saves, failed_invulns)
 
-            let special_rules_text = ""
-
-
-            if (breaching_value < 7) {
-                //Get the sum of failed saves with non-breaching and successful breaching rolls.
-                wounds_from_breaching = multiply(successful_hit, on_target_number(breaching_value))
-                final_damage = sum_results(failed_saves, wounds_from_breaching)
-                special_rules_text = ` with Breaching(${breaching_value}+) `
-            }
+            // Prepare this.parsed to display results
+            const special_rules_text = special_rules_text_arr.length ? "with " + special_rules_text_arr.join(", ") : "";
 
             this.parsed.type = "block";
             if (show_hits_and_initial_wounds) {
