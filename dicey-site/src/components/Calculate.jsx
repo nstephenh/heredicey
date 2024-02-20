@@ -1,6 +1,5 @@
 import React, { useState, useEffect, Suspense } from "react";
 import {
-  Alert,
   Paper,
   TextField,
   AppBar,
@@ -188,7 +187,6 @@ function ExportWrapper() {
       label="Export"
       readOnly={true}
       multiline
-      rows={20}
       fullWidth
       value={exportText}
       variant="outlined"
@@ -267,14 +265,6 @@ function CalcResult() {
   );
 }
 
-function ZAlert() {
-  const parsed = useRecoilValue(state.parsed);
-  return (
-    <Alert severity="info" style={{ fontFamily: "monospace" }}>
-      {parsed.v ? parsed.v.debugString : ""}
-    </Alert>
-  );
-}
 
 export default function Calculate() {
   const classes = useStyles();
@@ -310,9 +300,6 @@ export default function Calculate() {
         </React.Suspense>
       </SilentErrorBoundary>
       <br />
-
-      <br />
-      <ZAlert />
     </>
   );
 }
