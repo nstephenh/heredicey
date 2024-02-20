@@ -24,11 +24,11 @@ import {
   useSetRecoilState,
 } from "recoil";
 
-import CalcInput from "./CalcInput";
 import CalcTable from "./CalcTable";
 import OptionBar from "./OptionBar";
 
 import * as state from "../state";
+import WeaponInput from "./WeaponInput";
 
 function rollOn(l) {
   let acc = 100 * Math.random();
@@ -291,7 +291,7 @@ export default function Calculate() {
 
   return (
     <>
-      <CalcInput />
+      <WeaponInput />
       <Card className={classes.bar}>
         <CardActions className={classes.optionbar}>
           <OptionBar />

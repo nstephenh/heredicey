@@ -8,12 +8,26 @@ let workerInstance = worker();
 
 export let reload = atom({key: "reload", default: Math.random()});
 export let query = atom({key: "query", default: "output 3d6"});
+
+export let ws_or_bs = atom({key: "ws_or_bs", default: "4"})
+export let str = atom({key: "str", default: "4"})
+export let ap = atom({key: "ap", default: "4"})
+
+export let shots = atom({key: "shots", default: "2"})
+
+
 export let parsed = selector({
     key: "parsed",
     get: ({get}) => {
-        let expression = get(query);
+        let expression = {
+            ws_or_bs: Number(get(ws_or_bs)),
+            str: Number(get(str)),
+            ap: Number(get(ap)),
+            shots: Number(get(shots)),
+        };
         try {
-            let x = compile(expression);
+            //Still need a state to override, hence leaving in 3d6
+            let x = compile("output 3d6", expression);
             return {ok: true, v: x};
         } catch (e) {
             return {ok: false, error: e};

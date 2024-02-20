@@ -30,13 +30,16 @@ class ParseResult {
      * @returns {Block}
      */
     get result() {
-        const bal_skill = 3; //X+ to hit
+        console.log("Object on call to results", this)
+
+        const bal_skill = this.parsed.input.ws_or_bs; //X+ to hit
         const to_hit = 7 - bal_skill;
+        console.log("Hitting on " + to_hit)
 
 
-        const num_shots = 2;
-        const weapon_strength = 4;
-        const WEAPON_AP = 6;
+        const num_shots = this.parsed.input.shots;
+        const weapon_strength = this.parsed.input.str;
+        const WEAPON_AP = this.parsed.input.ap;
         const breaching_value = 5;
 
         const target_toughness = 4;
@@ -75,7 +78,7 @@ class ParseResult {
             final_damage = sum_results(failed_saves, wounds_from_breaching)
         }
 
-        this.parsed = {body: []}
+        this.parsed = {body: [], input: this.parsed.input}
         this.parsed.type = "block";
         this.parsed.body[0] = {
             "type": "output",
@@ -185,12 +188,15 @@ function sum_results(a, b) {
 /**
  *
  * @param {String} code
+ * @param {Object} values
  * @returns {ParseResult}
  */
 module
-    .exports = (code) => {
+    .exports = (code, values) => {
+    console.log("Input to dicey-math:", code, values)
     let o = new ParseResult();
-    o.parsed = parser.parse(code);
+    o.parsed = parser.parse(code); //This still needs to happen or it breaks.
+    o.parsed.input = values;
     return o;
 };
 
