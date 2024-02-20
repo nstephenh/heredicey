@@ -4,7 +4,6 @@ import {useRecoilState, useRecoilValue} from "recoil";
 import {makeStyles} from "@material-ui/core/styles";
 
 import * as state from "../state";
-import {targetToughness} from "../state";
 
 const useStyles = makeStyles((theme) => ({
     textbox: {
