@@ -233,29 +233,69 @@ const d6 = {
 };
 
 /**
- * Constructs a d18 with 3 instances of sides less than the rending value,
- * and adding 1,2,and 3 to the other sides, to simulate d6+ conditional d3
- * @param {number} rendingValue
+ * @param {{times?: number, sides: number, type: string}} dice
+ * @param {{number}}) threshold number to reroll if we're under
  */
-function rendingPenDie(rendingValue) {
-    const die = {
+function reroll_less_than_threshold(dice, threshold) {
+    return {
+        "type": "math",
+        "left": dice,
+        "m": "ro",
+        "op": "<",
+        "right": threshold,
+    }
+}
+
+/**
+ * Gives us the equivalent of a d6 (possibly rerolled) + conditional d3 if at or over rendingValue
+ * @param {number} rendingValue
+ * @param {number} rerollUnder threshold to reroll at
+ */
+function rendingPenDie( rendingValue, rerollUnder=7) {
+    let rolled_for_pen = d6
+    const sides_on_die_that_rend = 7-rendingValue
+    const max_non_rending_value = rendingValue-1
+    let die_above_rend = {
         "type": "die",
-        "sides": {
-            "type": "set",
-            "elements": []
-        }
+        "sides": sides_on_die_that_rend
     }
-    for (let initial_d6 = 1; initial_d6 <= 6; initial_d6++) {
-        for (let d3 = 1; d3 <= 3; d3++) {
-            let final_val = initial_d6
-            if (initial_d6 >= rendingValue) {
-                final_val += d3
-            }
-            die.sides.elements.push(final_val)
-        }
+    let die_below_rend = {
+        "type": "die",
+        "sides": max_non_rending_value
     }
-    console.log(die)
-    return die
+    if (rerollUnder < 7){
+        rolled_for_pen = reroll_less_than_threshold(d6, rerollUnder)
+        // This die will have the max_non_rending_value added to it, so we need to reduce the reroll threshold
+        die_above_rend = reroll_less_than_threshold(die_above_rend, rerollUnder-max_non_rending_value)
+        die_below_rend = reroll_less_than_threshold(die_below_rend, rerollUnder)
+    }
+    return {
+        "type": "call",
+        "name": "iif",
+        "args": [
+            {// If we get above the rending value,
+                "type": "math",
+                "left": rolled_for_pen,
+                "op": ">=",
+                "right": rendingValue,
+            },
+            { // Rending shot
+                "type": "math",
+                "left": {
+                    "type": "math",
+                    "left": rendingValue - 1, //  start with the max of a non-rending roll
+                    "op": "+",
+                    "right": die_above_rend, //Add the possible values we could have rolled to get what we rolled.
+                },
+                "op": "+",
+                "right": { //Add the bonus d3
+                    "type": "die",
+                    "sides": 3
+                },
+            },
+            die_below_rend //If we didn't hit the rend value, roll the remaining values
+        ]
+    }
 }
 
 function DisplayAsDamageTable(roll) {
