@@ -73,7 +73,15 @@ class ParseResult {
                     special_rules_text_arr.push(`Rending (${this.parsed.input.rending}+)`)
                 }
 
-                const glance_and_pen = multiply(successful_hit, at_or_above_threshold(pen_roll, to_glance_tn))
+                let glance = multiply(successful_hit, at_threshold(pen_roll, to_glance_tn))
+                let pen = multiply(successful_hit, above_threshold(pen_roll, to_glance_tn))
+
+                if (this.parsed.input.exoshock < 7) {
+                    pen = boost_damage(pen, on_target_number(this.parsed.input.exoshock), 2)
+                    special_rules_text_arr.push(`Exoshock (${this.parsed.input.exoshock}+)`)
+                }
+
+                const glance_and_pen = sum_results(glance, pen)
 
                 const special_rules_text = special_rules_text_arr.length ? "with " + special_rules_text_arr.join(", ") : "";
                 this.parsed.body[output_counter++] = {
@@ -81,11 +89,14 @@ class ParseResult {
                     "expression": n_dice(glance_and_pen, num_shots),
                     "text": `Lost hull points on ${target.name} (T${target.t}) from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength}, AP ${weapon_ap} ${special_rules_text} weapon`,
                 }
-                const pen = multiply(successful_hit, above_threshold(pen_roll, to_glance_tn))
 
                 let damage_table_bonus = 0
-                if (weapon_ap === 2){ damage_table_bonus = 1}
-                if (weapon_ap === 1){ damage_table_bonus = 2}
+                if (weapon_ap === 2) {
+                    damage_table_bonus = 1
+                }
+                if (weapon_ap === 1) {
+                    damage_table_bonus = 2
+                }
 
                 const damage_table_roll = multiply(pen, add(d6, damage_table_bonus))
 
@@ -303,6 +314,17 @@ function at_or_above_threshold(dice, target_number) {
     }
 }
 
+function at_threshold(dice, target_number) {
+
+    return {
+        "type": "math",
+        "left": dice,
+        "right": target_number,
+        "m": "cs",
+        "op": "=="
+    }
+}
+
 function above_threshold(dice, target_number) {
 
     return {
@@ -312,6 +334,17 @@ function above_threshold(dice, target_number) {
         "m": "cs",
         "op": ">"
     }
+}
+
+function boost_damage(damage_1_event, condition, new_damage) {
+    return multiply(damage_1_event, {
+        "type": "call",
+        "name": "iif",
+        "args": [condition,
+            new_damage,
+            1
+        ]
+    })
 }
 
 function on_target_number(target_number) {
