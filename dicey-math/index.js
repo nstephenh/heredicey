@@ -41,7 +41,7 @@ class ParseResult {
 
         const num_shots = this.parsed.input.shots;
         const weapon_strength = this.parsed.input.str;
-        const WEAPON_AP = this.parsed.input.ap;
+        const weapon_ap = this.parsed.input.ap;
 
         let show_hits_and_initial_wounds = false
 
@@ -79,7 +79,20 @@ class ParseResult {
                 this.parsed.body[output_counter++] = {
                     "type": "output",
                     "expression": n_dice(glance_and_pen, num_shots),
-                    "text": `Lost hull points on ${target.name} (T${target.t}) from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength}, AP ${WEAPON_AP} ${special_rules_text} weapon`,
+                    "text": `Lost hull points on ${target.name} (T${target.t}) from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength}, AP ${weapon_ap} ${special_rules_text} weapon`,
+                }
+                const pen = multiply(successful_hit, above_threshold(pen_roll, to_glance_tn))
+
+                let damage_table_bonus = 0
+                if (weapon_ap === 2){ damage_table_bonus = 1}
+                if (weapon_ap === 1){ damage_table_bonus = 2}
+
+                const damage_table_roll = multiply(pen, add(d6, damage_table_bonus))
+
+                this.parsed.body[output_counter++] = {
+                    "type": "output",
+                    "expression": DisplayAsDamageTable(n_dice(damage_table_roll, num_shots)),
+                    "text": `Worst damage table effect on ${target.name} over ${num_shots} shots`,
                 }
                 continue;
             }
@@ -98,13 +111,13 @@ class ParseResult {
             }
 
             let save_description = `${target.save}+ save`
-            if (WEAPON_AP <= target.save) {
+            if (weapon_ap <= target.save) {
                 if (target.invuln < 7) {
                     target.save = target.invuln
                     save_description = `${target.save}+ invulnerable save`
                 } else {
                     target.save = 7
-                    save_description = `no ${target.save}+ save because AP ${WEAPON_AP}`
+                    save_description = `no ${target.save}+ save because AP ${weapon_ap}`
                 }
             }
 
@@ -167,7 +180,7 @@ class ParseResult {
             this.parsed.body[output_counter++] = {
                 "type": "output",
                 "expression": n_dice(final_damage, num_shots),
-                "text": `Unsaved wounds on ${target.name} (T${target.t}, ${save_description}) from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength}, AP ${WEAPON_AP} ${special_rules_text} weapon`,
+                "text": `Unsaved wounds on ${target.name} (T${target.t}, ${save_description}) from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength}, AP ${weapon_ap} ${special_rules_text} weapon`,
             }
 
             // if (breaching_value < 7) {
@@ -234,6 +247,50 @@ function rendingPenDie(rendingValue) {
     return die
 }
 
+function DisplayAsDamageTable(roll) {
+    return {
+        "type": "call",
+        "name": "bucket",
+        "args": [
+            {
+                "type": "math",
+                "right": 1,
+                "left": roll,
+                "op": "kh"
+            },
+            {
+                "type": "string",
+                "value": "Miss"
+            },
+            1,
+            {
+                "type": "string",
+                "value": "1-3 Crew Shaken"
+            },
+            4,
+            {
+                "type": "string",
+                "value": "4\tCrew Stunned"
+            },
+            5,
+            {
+                "type": "string",
+                "value": "5 Weapon Destroyed"
+            },
+            6,
+            {
+                "type": "string",
+                "value": "6 Immobilized"
+            },
+            7,
+            {
+                "type": "string",
+                "value": "7+ Explodes"
+            }
+        ]
+    }
+}
+
 
 function at_or_above_threshold(dice, target_number) {
 
@@ -295,6 +352,16 @@ function multiply(a, b) {
     }
 }
 
+
+function add(a, b) {
+
+    return {
+        "type": "math",
+        "right": a,
+        "left": b,
+        "op": "+"
+    }
+}
 
 function sum_results(a, b) {
     return {
