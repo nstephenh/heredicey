@@ -70,7 +70,7 @@ class ParseResult {
                 let reroll_hits_under = 7
                 console.log("Sunder ?" + this.parsed.input.sunder)
 
-                if (this.parsed.input.sunder > 0){
+                if (this.parsed.input.sunder > 0) {
                     // Either reroll all misses or misses + glances
                     reroll_hits_under = this.parsed.input.sunder === 2 ? to_glance_tn + 1 : to_glance_tn
                     pen_roll = reroll_less_than_threshold(d6, reroll_hits_under)
@@ -243,10 +243,13 @@ const d6 = {
 };
 
 /**
- * @param {{times?: number, sides: number, type: string}} dice
+ * @param {{times?: number, sides: number, type: string}} dice A singular die only
  * @param {{number}} threshold number to reroll if we're under
  */
 function reroll_less_than_threshold(dice, threshold) {
+    if (dice.times > 1){
+        throw "We can't handle re-roll on multiple dice"
+    }
     return {
         "type": "math",
         "left": dice,
@@ -261,10 +264,10 @@ function reroll_less_than_threshold(dice, threshold) {
  * @param {number} rendingValue
  * @param {number} rerollUnder threshold to reroll at
  */
-function rendingPenDie( rendingValue, rerollUnder=7) {
+function rendingPenDie(rendingValue, rerollUnder = 7) {
     let rolled_for_pen = d6
-    const sides_on_die_that_rend = 7-rendingValue
-    const max_non_rending_value = rendingValue-1
+    const sides_on_die_that_rend = 7 - rendingValue
+    const max_non_rending_value = rendingValue - 1
     let die_above_rend = {
         "type": "die",
         "sides": sides_on_die_that_rend
@@ -273,12 +276,12 @@ function rendingPenDie( rendingValue, rerollUnder=7) {
         "type": "die",
         "sides": max_non_rending_value
     }
-    console.log(`Weighing based on d6 >= ${rendingValue}, ${max_non_rending_value} `+
+    console.log(`Weighing based on d6 >= ${rendingValue}, ${max_non_rending_value} ` +
         `+ d${sides_on_die_that_rend} + d3, d${max_non_rending_value}`)
-    if (rerollUnder < 7){
+    if (rerollUnder < 7) {
         rolled_for_pen = reroll_less_than_threshold(d6, rerollUnder)
         // This die will have the max_non_rending_value added to it, so we need to reduce the reroll threshold
-        die_above_rend = reroll_less_than_threshold(die_above_rend, rerollUnder-max_non_rending_value)
+        die_above_rend = reroll_less_than_threshold(die_above_rend, rerollUnder - max_non_rending_value)
         die_below_rend = reroll_less_than_threshold(die_below_rend, rerollUnder)
     }
     return {
