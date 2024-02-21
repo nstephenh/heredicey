@@ -377,9 +377,10 @@ class BinaryOperation {
 
             case "==":
             case "=":
-                return left === right ? 1 : 0;
+                //DO NOT REPLACE WITH ===
+                return left == right ? 1 : 0;
             case "!=":
-                return left !== right ? 1 : 0;
+                return left != right ? 1 : 0;
         }
     }
 
