@@ -66,13 +66,14 @@ class ParseResult {
             if (target.t >= 10) {
                 const to_glance_tn = target.t - weapon_strength
                 console.log("Glancing on " + to_glance_tn)
-                let glance_and_pen = multiply(successful_hit, at_or_above_threshold(d6))
+                let pen_roll = d6
 
                 if (this.parsed.input.rending < 7) {
-                    //TODO Actually make rending work (probably need the iif statement?)
-                    glance_and_pen = multiply(successful_hit, at_or_above_threshold(d6))
+                    pen_roll = rendingPenDie(this.parsed.input.rending)
                     special_rules_text_arr.push(`Rending (${this.parsed.input.rending}+)`)
                 }
+
+                const glance_and_pen = multiply(successful_hit, at_or_above_threshold(pen_roll, to_glance_tn))
 
                 const special_rules_text = special_rules_text_arr.length ? "with " + special_rules_text_arr.join(", ") : "";
                 this.parsed.body[output_counter++] = {
@@ -207,11 +208,32 @@ const d6 = {
     "sides": 6
 };
 
-const d3 = {
-    "type": "die",
-    "times": 1,
-    "sides": 6
-};
+/**
+ * Constructs a d18 with 3 instances of sides less than the rending value,
+ * and adding 1,2,and 3 to the other sides, to simulate d6+ conditional d3
+ * @param {number} rendingValue
+ */
+function rendingPenDie(rendingValue) {
+    const die = {
+        "type": "die",
+        "sides": {
+            "type": "set",
+            "elements": []
+        }
+    }
+    for (let initial_d6 = 1; initial_d6 <= 6; initial_d6++) {
+        for (let d3 = 1; d3 <= 3; d3++) {
+            let final_val = initial_d6
+            if (initial_d6 >= rendingValue) {
+                final_val += d3
+            }
+            die.sides.elements.push(final_val)
+        }
+    }
+    console.log(die)
+    return die
+}
+
 
 function at_or_above_threshold(dice, target_number) {
 
@@ -270,16 +292,6 @@ function multiply(a, b) {
         "left": a,
         "right": b,
         "op": "*"
-    }
-}
-
-function add(a, b) {
-
-    return {
-        "type": "math",
-        "right": a,
-        "left": b,
-        "op": "+"
     }
 }
 
