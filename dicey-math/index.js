@@ -63,11 +63,16 @@ class ParseResult {
             const successful_hit = on_target_number(to_hit)
 
             //Handling for vehicles
-            if (target.t >= 10){
+            if (target.t >= 10) {
                 const to_glance_tn = target.t - weapon_strength
                 console.log("Glancing on " + to_glance_tn)
-                //TODO: Make this instead compare a d6 (or d6+d3) to a target number
-                const glance_and_pen = multiply(successful_hit, on_target_number(to_glance_tn))
+                let glance_and_pen = multiply(successful_hit, at_or_above_threshold(d6))
+
+                if (this.parsed.input.rending < 7) {
+                    //TODO Actually make rending work (probably need the iif statement?)
+                    glance_and_pen = multiply(successful_hit, at_or_above_threshold(d6))
+                    special_rules_text_arr.push(`Rending (${this.parsed.input.rending}+)`)
+                }
 
                 const special_rules_text = special_rules_text_arr.length ? "with " + special_rules_text_arr.join(", ") : "";
                 this.parsed.body[output_counter++] = {
@@ -104,7 +109,6 @@ class ParseResult {
 
             // display_wound is all wounding hits, no matter if they're special or not.
             const display_wound = multiply(successful_hit, on_target_number(to_wound_t_n))
-
 
 
             console.log("Wounding on " + to_wound_t_n)
@@ -197,15 +201,46 @@ class ParseResult {
     }
 }
 
+const d6 = {
+    "type": "die",
+    "times": 1,
+    "sides": 6
+};
+
+const d3 = {
+    "type": "die",
+    "times": 1,
+    "sides": 6
+};
+
+function at_or_above_threshold(dice, target_number) {
+
+    return {
+        "type": "math",
+        "left": dice,
+        "right": target_number,
+        "m": "cs",
+        "op": ">="
+    }
+}
+
+function above_threshold(dice, target_number) {
+
+    return {
+        "type": "math",
+        "left": dice,
+        "right": target_number,
+        "m": "cs",
+        "op": ">"
+    }
+}
+
 function on_target_number(target_number) {
+
     return {
         "type": "math",
         "right": target_number,
-        "left": {
-            "type": "die",
-            "times": 1,
-            "sides": 6
-        },
+        "left": d6,
         "m": "cs",
         "op": ">="
     }
@@ -215,11 +250,7 @@ function failed_target_number(target_number) {
     return {
         "type": "math",
         "right": target_number,
-        "left": {
-            "type": "die",
-            "times": 1,
-            "sides": 6
-        },
+        "left": d6,
         "m": "cs",
         "op": "<"
     }
@@ -239,6 +270,16 @@ function multiply(a, b) {
         "left": a,
         "right": b,
         "op": "*"
+    }
+}
+
+function add(a, b) {
+
+    return {
+        "type": "math",
+        "right": a,
+        "left": b,
+        "op": "+"
     }
 }
 
