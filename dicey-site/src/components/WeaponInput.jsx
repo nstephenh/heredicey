@@ -30,7 +30,6 @@ export default function WeaponInput() {
     const [sunder, setSunder] = useRecoilState(state.sunder);
 
 
-
     return (
         <Card>
             <CardContent className={classes.card}>
@@ -122,12 +121,26 @@ export default function WeaponInput() {
                     control={
                         <Checkbox
                             id='sunder'
-                            checked={sunder}
-                            onChange={(e) => setSunder(e.target.checked)}
+                            checked={sunder >= 1}
+                            onChange={(e) => setSunder(e.target.checked ? 1 : 0)}
                         />}
                     label="Sunder"
                     labelPlacement="top"
                 />
+                {sunder ?
+                    <FormControlLabel
+                        value="top"
+                        control={
+                            <Checkbox
+                                id='sunder_fish'
+                                checked={sunder == 2}
+                                onChange={(e) => setSunder(e.target.checked ? 2 : 1)}
+                            />}
+                        label="Fish for Penetrating Hits"
+                        labelPlacement="top"
+                    />
+                    : <></>
+                }
 
             </CardContent>
         </Card>

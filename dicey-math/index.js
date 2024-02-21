@@ -67,9 +67,19 @@ class ParseResult {
                 const to_glance_tn = target.t - weapon_strength
                 console.log("Glancing on " + to_glance_tn)
                 let pen_roll = d6
+                let reroll_hits_under = 7
+                console.log("Sunder ?" + this.parsed.input.sunder)
+
+                if (this.parsed.input.sunder > 0){
+                    // Either reroll all misses or misses + glances
+                    reroll_hits_under = this.parsed.input.sunder === 2 ? to_glance_tn + 1 : to_glance_tn
+                    pen_roll = reroll_less_than_threshold(d6, reroll_hits_under)
+                    console.log("Rerolling pen rolls under " + reroll_hits_under)
+
+                }
 
                 if (this.parsed.input.rending < 7) {
-                    pen_roll = rendingPenDie(this.parsed.input.rending)
+                    pen_roll = rendingPenDie(this.parsed.input.rending, reroll_hits_under)
                     special_rules_text_arr.push(`Rending (${this.parsed.input.rending}+)`)
                 }
 
@@ -234,7 +244,7 @@ const d6 = {
 
 /**
  * @param {{times?: number, sides: number, type: string}} dice
- * @param {{number}}) threshold number to reroll if we're under
+ * @param {{number}} threshold number to reroll if we're under
  */
 function reroll_less_than_threshold(dice, threshold) {
     return {
@@ -263,6 +273,8 @@ function rendingPenDie( rendingValue, rerollUnder=7) {
         "type": "die",
         "sides": max_non_rending_value
     }
+    console.log(`Weighing based on d6 >= ${rendingValue}, ${max_non_rending_value} `+
+        `+ d${sides_on_die_that_rend} + d3, d${max_non_rending_value}`)
     if (rerollUnder < 7){
         rolled_for_pen = reroll_less_than_threshold(d6, rerollUnder)
         // This die will have the max_non_rending_value added to it, so we need to reduce the reroll threshold
@@ -283,7 +295,7 @@ function rendingPenDie( rendingValue, rerollUnder=7) {
                 "type": "math",
                 "left": {
                     "type": "math",
-                    "left": rendingValue - 1, //  start with the max of a non-rending roll
+                    "left": max_non_rending_value, //  start with the max of a non-rending roll
                     "op": "+",
                     "right": die_above_rend, //Add the possible values we could have rolled to get what we rolled.
                 },

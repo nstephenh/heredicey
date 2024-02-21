@@ -17,7 +17,7 @@ export let shots = atom({key: "shots", default: "2"})
 export let breaching = atom({key: "breaching", default: "7"})
 export let rending = atom({key: "rending", default: "6"})
 export let exoshock = atom({key: "exoshock", default: "6"})
-export let sunder = atom({key: "sunder", default: false})
+export let sunder = atom({key: "sunder", default: 0}) // 0 = no, 1 = yes, 2 = reroll glances
 
 
 export let targetName = atom({key: "targetName", default: "Contemptor"})
@@ -41,7 +41,7 @@ export let parsed = selector({
             breaching: Number(get(breaching)),
             rending: Number(get(rending)),
             exoshock: Number(get(exoshock)),
-            sunder: get(exoshock),
+            sunder: Number(get(sunder)),
 
 
             targetName: get(targetName),
