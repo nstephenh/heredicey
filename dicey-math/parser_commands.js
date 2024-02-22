@@ -247,7 +247,7 @@ function DisplayAsDamageTable(roll) {
             },
             {
                 "type": "string",
-                "value": "Miss"
+                "value": "Miss or Glance"
             },
             1,
             {
