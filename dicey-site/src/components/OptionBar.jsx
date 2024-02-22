@@ -12,7 +12,6 @@ import {
 import {useRecoilState} from "recoil";
 
 import * as state from "../state";
-import {hideInsignificant} from "../state";
 
 export default function OptionBar() {
     const [collapse, setCollapse] = useRecoilState(state.collapse);
