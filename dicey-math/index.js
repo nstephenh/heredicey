@@ -1,4 +1,10 @@
 let parser;
+const { d6, twoD6kh,
+    makeDiceCloudy, filter_to_value, reroll_less_than_threshold, rendingPenRoll,
+    at_or_above_threshold, at_threshold, above_threshold, boost_damage, on_target_number,
+    failed_target_number, n_dice, multiply, add, sum_results, count,
+    DisplayAsDamageTable
+} = require("./parser_commands")
 
 try {
     parser = require("../pegjs-loader.js!./parser.js");
@@ -31,64 +37,14 @@ class ParseResult {
      */
     get result() {
         console.log("Object on call to results", this)
-        if (this.parsed.input.calculatorMode){
+        if (this.parsed.input.calculatorMode) {
             if (!this.value) this.value = valueize(this.parsed);
             return this.value;
         }
 
-            this.parsed = {body: [], input: this.parsed.input} // Reset this.parsed, so we can override the 3d6 result.
+        this.parsed = {body: [], input: this.parsed.input} // Reset this.parsed, so we can override the 3d6 result.
         this.parsed.type = "block";
         let output_counter = 0;
-
-
-        if (this.parsed.input.test){ //Math examples, I recommend hiding this.
-            this.parsed.body[output_counter++] = {
-                "type": "output",
-                "expression": twoD6kh,
-                "text": `2d6kh`,
-            }
-            this.parsed.body[output_counter++] = {
-                "type": "output",
-                "expression": reroll_less_than_threshold(twoD6kh, 5),
-                "text": `2d6kh rerolled once on a less than 5`,
-            }
-            this.parsed.body[output_counter++] = {
-                "type": "output",
-                "expression": reroll_less_than_threshold(d6, 5),
-                "text": `1d6 rerolled once on a less than 5`,
-            }
-            this.parsed.body[output_counter++] = {
-                "type": "output",
-                "expression": {
-                    "type": "math",
-                    "left": {
-                        "type": "math",
-                        left: twoD6kh,
-                        "op": "+",
-                        "right": 0
-                    },
-                    "m": "r",
-                    "op": ">",
-                    "right": 3,
-
-                },
-                "text": `2d6kh rerolling values that are greater than 3 (should be 11%, 33%, 55%)`,
-            }
-            let die_above_rend = filter_to_value(twoD6kh, ">=", 5)
-            let die_below_rend= filter_to_value(twoD6kh, "<", 5)
-            this.parsed.body[output_counter++] = {
-                "type": "output",
-                "expression": die_above_rend,
-                "text": `Values above 5 on 2d6kh`,
-            }
-            this.parsed.body[output_counter++] = {
-                "type": "output",
-                "expression": die_below_rend,
-                "text": `values below 5 on 2d6kh`,
-            }
-            if (!this.value) this.value = valueize(this.parsed)
-            return this.value;
-        }
 
 
         const bal_skill = this.parsed.input.ws_or_bs; //X+ to hit
@@ -101,8 +57,6 @@ class ParseResult {
         const weapon_ap = this.parsed.input.ap;
 
         let show_hits_and_initial_wounds = false
-
-
 
 
         for (let target of [
@@ -303,279 +257,6 @@ class ParseResult {
     }
 }
 
-const d6 = {
-    "type": "die",
-    "times": 1,
-    "sides": 6
-};
-
-const twoD6kh = {
-    "type": "math",
-    "right": 1,
-    "left": {
-        "type": "die",
-        "times": 2,
-        "sides": 6
-    },
-    "op": "kh"
-}
-
-//Sometimes adding 0 to a die makes it behave differently. Unsure why.
-function makeDiceCloudy(dice) {
-    return {
-        type: "math",
-        left: dice,
-        op: "+",
-        right: 0
-    }
-}
-
-/**
- * Use reroll to get a subset of the probabilities for a given occurrence.
- * @param {{type:string}} cloud_or_die
- * @param {string} op >=, <=, > or <
- * @param {number} val
- * @returns {{type:string}}
- */
-function filter_to_value(cloud_or_die, op, val) {
-    // Because we're re-rolling all values, we need to invert the operator.
-    switch (op) {
-        case ">=":
-            op = "<"
-            break
-        case "<=":
-            op = ">"
-            break
-        case ">":
-            op = "<="
-            break
-        case "<":
-            op = ">="
-            break
-    }
-    return {
-        "type": "math",
-        "left": makeDiceCloudy(cloud_or_die),
-        "m": "r",
-        "op": op,
-        "right": val,
-    }
-}
-
-/**
- * @param {{type: string}} dice A die or expression that we can roll
- * @param {{number}} threshold number to reroll if we're under
- */
-function reroll_less_than_threshold(dice, threshold) {
-    return {
-        "type": "math",
-        "left": dice,
-        "m": "ro",
-        "op": "<",
-        "right": threshold,
-    }
-}
-
-/**
- * Gives us the equivalent of in_dice + conditional d3 if at or over rendingValue
- * @param {{type:string}} in_dice
- * @param {number} rendingValue
- * @param {number} rerollUnder threshold to reroll at, if under 7.
- */
-function rendingPenRoll(in_dice, rendingValue, rerollUnder = 7) {
-    let rolled_for_pen = in_dice
-    let die_above_rend = filter_to_value(in_dice, ">=", rendingValue)
-    let die_below_rend = filter_to_value(in_dice, "<", rendingValue)
-    console.log(`Weighing based on d6 >= ${rendingValue}, values at or above rending ` +
-        `+ d3, values below rending`)
-    if (rerollUnder < 7) {
-        console.log("\twith a re-roll")
-        rolled_for_pen = reroll_less_than_threshold(in_dice, rerollUnder)
-        die_above_rend = reroll_less_than_threshold(die_above_rend, rerollUnder)
-        die_below_rend = reroll_less_than_threshold(die_below_rend, rerollUnder)
-    }
-    return {
-        "type": "call",
-        "name": "iif",
-        "args": [
-            {// If we get above the rending value,
-                "type": "math",
-                "left": rolled_for_pen,
-                "op": ">=",
-                "right": rendingValue,
-            },
-            { // Rending shot
-                "type": "math",
-                "left": die_above_rend, //Values we could have rolled that rend
-                "op": "+",
-                "right": { //Add the bonus d3
-                    "type": "die",
-                    "sides": 3
-                },
-            },
-            die_below_rend //If we didn't hit the rend value, roll the remaining values
-        ]
-    }
-}
-
-function DisplayAsDamageTable(roll) {
-    return {
-        "type": "call",
-        "name": "bucket",
-        "args": [
-            {
-                "type": "math",
-                "right": 1,
-                "left": roll,
-                "op": "kh"
-            },
-            {
-                "type": "string",
-                "value": "Miss"
-            },
-            1,
-            {
-                "type": "string",
-                "value": "1-3 Crew Shaken"
-            },
-            4,
-            {
-                "type": "string",
-                "value": "4\tCrew Stunned"
-            },
-            5,
-            {
-                "type": "string",
-                "value": "5 Weapon Destroyed"
-            },
-            6,
-            {
-                "type": "string",
-                "value": "6 Immobilized"
-            },
-            7,
-            {
-                "type": "string",
-                "value": "7+ Explodes"
-            }
-        ]
-    }
-}
-
-
-function at_or_above_threshold(dice, target_number) {
-
-    return {
-        "type": "math",
-        "left": dice,
-        "right": target_number,
-        "m": "cs",
-        "op": ">="
-    }
-}
-
-function at_threshold(dice, target_number) {
-
-    return {
-        "type": "math",
-        "left": dice,
-        "right": target_number,
-        "m": "cs",
-        "op": "=="
-    }
-}
-
-function above_threshold(dice, target_number) {
-
-    return {
-        "type": "math",
-        "left": dice,
-        "right": target_number,
-        "m": "cs",
-        "op": ">"
-    }
-}
-
-function boost_damage(damage_1_event, condition, new_damage) {
-    return multiply(damage_1_event, {
-        "type": "call",
-        "name": "iif",
-        "args": [condition,
-            new_damage,
-            1
-        ]
-    })
-}
-
-function on_target_number(target_number) {
-
-    return {
-        "type": "math",
-        "right": target_number,
-        "left": d6,
-        "m": "cs",
-        "op": ">="
-    }
-}
-
-function failed_target_number(target_number) {
-    return {
-        "type": "math",
-        "right": target_number,
-        "left": d6,
-        "m": "cs",
-        "op": "<"
-    }
-}
-
-function n_dice(expression, dice) {
-    return {
-        "type": "call",
-        "name": "repeat",
-        "args": [expression, dice]
-    }
-}
-
-function multiply(a, b) {
-    return {
-        "type": "math",
-        "left": a,
-        "right": b,
-        "op": "*"
-    }
-}
-
-
-function add(a, b) {
-
-    return {
-        "type": "math",
-        "right": a,
-        "left": b,
-        "op": "+"
-    }
-}
-
-function sum_results(a, b) {
-    return {
-        "type": "math",
-        "right": a,
-        "left": b,
-        "op": "++"
-    }
-}
-
-
-function count(expression, value) {
-    return {
-        "type": "call",
-        "name": "count",
-        "args": [
-            expression,
-            value
-        ]
-    }
-}
 
 /**
  *
