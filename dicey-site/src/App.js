@@ -174,7 +174,7 @@ export default function App() {
                   noWrap
                   className={classes.title}
                 >
-                  Dicey
+                  Heredicey
                 </Typography>
 
                 <IconButton
