@@ -31,8 +31,64 @@ class ParseResult {
      */
     get result() {
         console.log("Object on call to results", this)
-        this.parsed = {body: [], input: this.parsed.input} // Reset this.parsed, so we can override the 3d6 result.
+        if (this.parsed.input.calculatorMode){
+            if (!this.value) this.value = valueize(this.parsed);
+            return this.value;
+        }
+
+            this.parsed = {body: [], input: this.parsed.input} // Reset this.parsed, so we can override the 3d6 result.
         this.parsed.type = "block";
+        let output_counter = 0;
+
+
+        if (this.parsed.input.test){ //Math examples, I recommend hiding this.
+            this.parsed.body[output_counter++] = {
+                "type": "output",
+                "expression": twoD6kh,
+                "text": `2d6kh`,
+            }
+            this.parsed.body[output_counter++] = {
+                "type": "output",
+                "expression": reroll_less_than_threshold(twoD6kh, 5),
+                "text": `2d6kh rerolled once on a less than 5`,
+            }
+            this.parsed.body[output_counter++] = {
+                "type": "output",
+                "expression": reroll_less_than_threshold(d6, 5),
+                "text": `1d6 rerolled once on a less than 5`,
+            }
+            this.parsed.body[output_counter++] = {
+                "type": "output",
+                "expression": {
+                    "type": "math",
+                    "left": {
+                        "type": "math",
+                        left: twoD6kh,
+                        "op": "+",
+                        "right": 0
+                    },
+                    "m": "r",
+                    "op": ">",
+                    "right": 3,
+
+                },
+                "text": `2d6kh rerolling values that are greater than 3 (should be 11%, 33%, 55%)`,
+            }
+            let die_above_rend = filter_to_value(twoD6kh, ">=", 5)
+            let die_below_rend= filter_to_value(twoD6kh, "<", 5)
+            this.parsed.body[output_counter++] = {
+                "type": "output",
+                "expression": die_above_rend,
+                "text": `Values above 5 on 2d6kh`,
+            }
+            this.parsed.body[output_counter++] = {
+                "type": "output",
+                "expression": die_below_rend,
+                "text": `values below 5 on 2d6kh`,
+            }
+            if (!this.value) this.value = valueize(this.parsed)
+            return this.value;
+        }
 
 
         const bal_skill = this.parsed.input.ws_or_bs; //X+ to hit
@@ -46,53 +102,8 @@ class ParseResult {
 
         let show_hits_and_initial_wounds = false
 
-        let output_counter = 0;
 
-        // Math examples
-        // this.parsed.body[output_counter++] = {
-        //     "type": "output",
-        //     "expression": twoD6kh,
-        //     "text": `2d6`,
-        // }
-        // this.parsed.body[output_counter++] = {
-        //     "type": "output",
-        //     "expression": reroll_less_than_threshold(twoD6kh, 5),
-        //     "text": `2d6kh rerolled once on a less than 5`,
-        // }
-        // this.parsed.body[output_counter++] = {
-        //     "type": "output",
-        //     "expression": reroll_less_than_threshold(d6, 5),
-        //     "text": `1d6 rerolled once on a less than 5`,
-        // }
-        // this.parsed.body[output_counter++] = {
-        //     "type": "output",
-        //     "expression": {
-        //         "type": "math",
-        //         "left": {
-        //             "type": "math",
-        //             left: twoD6kh,
-        //             "op": "+",
-        //             "right": 0
-        //         },
-        //         "m": "r",
-        //         "op": ">",
-        //         "right": 3,
-        //
-        //     },
-        //     "text": `2d6kh rerolling values that are greater than 3 (should be 11%, 33%, 55%)`,
-        // }
-        // let die_above_rend = filter_to_value(twoD6kh, ">=", 5)
-        // let die_below_rend= filter_to_value(twoD6kh, "<", 5)
-        // this.parsed.body[output_counter++] = {
-        //     "type": "output",
-        //     "expression": die_above_rend,
-        //     "text": `Values above 5 on 2d6kh`,
-        // }
-        // this.parsed.body[output_counter++] = {
-        //     "type": "output",
-        //     "expression": die_below_rend,
-        //     "text": `values below 5 on 2d6kh`,
-        // }
+
 
         for (let target of [
             {

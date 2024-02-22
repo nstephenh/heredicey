@@ -9,6 +9,9 @@ let workerInstance = worker();
 export let reload = atom({key: "reload", default: Math.random()});
 export let query = atom({key: "query", default: "output 3d6"});
 
+export let calculatorMode = atom({key: "calculatorMode", default: false})
+
+
 export let weaponName = atom({key: "weaponName", default: "1/4th of Accelerator Autocannon"})
 export let ws_or_bs = atom({key: "ws_or_bs", default: "4"})
 export let str = atom({key: "str", default: "7"})
@@ -29,10 +32,14 @@ export let targetInvuln = atom({key: "targetInvuln", default: "5"})
 export let isVehicle = atom({key: "isVehicle", default: false})
 
 
+
+
 export let parsed = selector({
     key: "parsed",
     get: ({get}) => {
         let expression = {
+            calculatorMode: get(calculatorMode),
+
             weaponName: get(weaponName),
             ws_or_bs: Number(get(ws_or_bs)),
             str: Number(get(str)),
