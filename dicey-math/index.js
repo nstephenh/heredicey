@@ -32,6 +32,7 @@ class ParseResult {
     get result() {
         console.log("Object on call to results", this)
         this.parsed = {body: [], input: this.parsed.input} // Reset this.parsed, so we can override the 3d6 result.
+        this.parsed.type = "block";
 
 
         const bal_skill = this.parsed.input.ws_or_bs; //X+ to hit
@@ -47,6 +48,44 @@ class ParseResult {
 
         let output_counter = 0;
 
+        // Math examples
+        // this.parsed.body[output_counter++] = {
+        //     "type": "output",
+        //     "expression": twoD6kh,
+        //     "text": `2d6`,
+        // }
+        // this.parsed.body[output_counter++] = {
+        //     "type": "output",
+        //     "expression": reroll_less_than_threshold(twoD6kh, 5),
+        //     "text": `2d6kh rerolled once on a less than 5`,
+        // }
+        // this.parsed.body[output_counter++] = {
+        //     "type": "output",
+        //     "expression": reroll_less_than_threshold(d6, 5),
+        //     "text": `1d6 rerolled once on a less than 5`,
+        // }
+        // this.parsed.body[output_counter++] = {
+        //     "type": "output",
+        //     "expression": {
+        //         "type": "math",
+        //         "left": {
+        //             "type": "math",
+        //             left: {
+        //                 "type": "die",
+        //                 "times": 2,
+        //                 "sides": 6
+        //             },
+        //             "op": "+",
+        //             "right": 0
+        //         },
+        //         "m": "r",
+        //         "op": "<",
+        //         "right": 5,
+        //
+        //     },
+        //     "text": `2d6 rerolling values that are less than 5`,
+        // }
+
         for (let target of [
             {
                 name: this.parsed.input.targetName,
@@ -58,6 +97,7 @@ class ParseResult {
             {name: "Cataphractii", t: 4, save: 2, invuln: 4},
             {name: "Rhino", t: 11},
         ]) {
+
 
             let special_rules_text_arr = []
             const successful_hit = on_target_number(to_hit)
@@ -184,7 +224,6 @@ class ParseResult {
             // Prepare this.parsed to display results
             const special_rules_text = special_rules_text_arr.length ? "with " + special_rules_text_arr.join(", ") : "";
 
-            this.parsed.type = "block";
             if (show_hits_and_initial_wounds) {
                 this.parsed.body[output_counter++] = {
                     "type": "output",
@@ -242,14 +281,32 @@ const d6 = {
     "sides": 6
 };
 
+const twoD6kh = {
+    "type": "math",
+    "right": 1,
+    "left": {
+        "type": "die",
+        "times": 2,
+        "sides": 6
+    },
+    "op": "kh"
+}
+
+//Sometimes adding 0 to a die makes it behave differently. Unsure why.
+function makeDiceCloudy(dice) {
+    return {
+        type: "math",
+        left: dice,
+        op: "+",
+        right: 0
+    }
+}
+
 /**
- * @param {{times?: number, sides: number, type: string}} dice A singular die only
+ * @param {{type: string}} dice A die or expression that we can roll
  * @param {{number}} threshold number to reroll if we're under
  */
 function reroll_less_than_threshold(dice, threshold) {
-    if (dice.times > 1){
-        throw "We can't handle re-roll on multiple dice"
-    }
     return {
         "type": "math",
         "left": dice,
@@ -264,7 +321,7 @@ function reroll_less_than_threshold(dice, threshold) {
  * @param {number} rendingValue
  * @param {number} rerollUnder threshold to reroll at
  */
-function rendingPenDie(rendingValue, rerollUnder = 7) {
+function rendingPenDie(rendingValue, rerollUnder = 7, ordnance) {
     let rolled_for_pen = d6
     const sides_on_die_that_rend = 7 - rendingValue
     const max_non_rending_value = rendingValue - 1
@@ -460,6 +517,17 @@ function sum_results(a, b) {
     }
 }
 
+
+function count(expression, value) {
+    return {
+        "type": "call",
+        "name": "count",
+        "args": [
+            expression,
+            value
+        ]
+    }
+}
 
 /**
  *

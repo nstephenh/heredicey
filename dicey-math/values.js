@@ -505,15 +505,22 @@ class BinaryOperation {
                 let reroll = [];
                 let okay = [];
                 for (let i = 0; i < e.k.length; ++i) {
+                    console.log(e, i)
                     if (BinaryOperation.applyOp(e.k[i], this.op, val)) {
-                        if (!e.sources)
-                            throw new Error(
-                                "Tried to reroll a value that couldnt be traced back to a die"
-                            );
-                        if (this.opMode == "ro") {
-                            reroll.push(new Die(e.sources[i].sides));
+                        if (this.opMode === "ro") {
+                            if (!e.sources){
+                                reroll.push(new Cloud(this.left.cloud().values, this.left.cloud().total));
+                            }
+                            else{
+                                reroll.push(new Die(e.sources[i].sides));
+                            }
                         } else {
-                            let c = new Die(e.sources[i].sides).denseCloud();
+                            let c = null
+                            if (!e.sources) {
+                                c = this.left.cloud()
+                            }else{
+                                c = new Die(e.sources[i].sides).denseCloud();
+                            }
                             let cbi = new CloudBuilder();
                             for (let o of c.values) {
                                 console.log(o.k[0], this.op, val);
