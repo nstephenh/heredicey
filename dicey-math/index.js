@@ -2,7 +2,7 @@ let parser;
 const {
     d6, twoD6kh, ap1TableDie, ap2TableDie,
     makeDiceCloudy, filter_to_value, reroll_less_than_threshold, rendingPenRoll,
-    at_or_above_threshold, at_threshold, above_threshold, add_additional_hit, on_target_number,
+    at_or_above_threshold, at_threshold, above_threshold, boost_damage, on_target_number,
     failed_target_number, n_dice, multiply, add, sum_results, count,
     DisplayAsDamageTable
 } = require("./parser_commands")
@@ -110,7 +110,7 @@ class ParseResult {
                 let pen = multiply(successful_hit, above_threshold(pen_roll, to_glance_tn))
 
                 if (this.parsed.input.exoshock < 7) {
-                    pen = add_additional_hit(pen, on_target_number(this.parsed.input.exoshock), 2)
+                    pen = boost_damage(pen, on_target_number(this.parsed.input.exoshock), 2)
                     special_rules_text_arr.push(`Exoshock (${this.parsed.input.exoshock}+)`)
                 }
 
@@ -134,8 +134,8 @@ class ParseResult {
                 const damage_table_roll = multiply(pen, damage_table_die)
                 this.parsed.body[output_counter++] = {
                     "type": "output",
-                    "expression": DisplayAsDamageTable(n_dice(damage_table_roll, num_shots)),
-                    "text": `Worst damage table effect on ${target.name} over ${num_shots} shots`,
+                    "expression": n_dice(DisplayAsDamageTable(damage_table_roll), n_dice(pen, num_shots)),
+                    "text": `Damage table effects on ${target.name} over ${num_shots} shots`,
                 }
                 continue;
             }

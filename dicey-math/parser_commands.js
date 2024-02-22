@@ -153,8 +153,15 @@ function above_threshold(dice, target_number) {
     }
 }
 
-function add_additional_hit(damage_1_event, condition) {
-    return sum_results(multiply(condition, damage_1_event), damage_1_event)
+function boost_damage(damage_1_event, condition, new_damage) {
+    return multiply(damage_1_event, {
+        "type": "call",
+        "name": "iif",
+        "args": [condition,
+            new_damage,
+            1
+        ]
+    })
 }
 
 function on_target_number(target_number) {
@@ -304,7 +311,7 @@ function DisplayAsDamageTable(roll) {
 module.exports = {
     d6, twoD6kh, ap1TableDie, ap2TableDie,
     makeDiceCloudy, filter_to_value, reroll_less_than_threshold, rendingPenRoll,
-    at_or_above_threshold, at_threshold, above_threshold, add_additional_hit, on_target_number,
+    at_or_above_threshold, at_threshold, above_threshold, boost_damage, on_target_number,
     failed_target_number, n_dice, multiply, add, sum_results, count,
     DisplayAsDamageTable
 }
