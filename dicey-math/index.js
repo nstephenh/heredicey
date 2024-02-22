@@ -1,7 +1,8 @@
 let parser;
-const { d6, twoD6kh,
+const {
+    d6, twoD6kh, ap1TableDie, ap2TableDie,
     makeDiceCloudy, filter_to_value, reroll_less_than_threshold, rendingPenRoll,
-    at_or_above_threshold, at_threshold, above_threshold, boost_damage, on_target_number,
+    at_or_above_threshold, at_threshold, above_threshold, add_additional_hit, on_target_number,
     failed_target_number, n_dice, multiply, add, sum_results, count,
     DisplayAsDamageTable
 } = require("./parser_commands")
@@ -109,7 +110,7 @@ class ParseResult {
                 let pen = multiply(successful_hit, above_threshold(pen_roll, to_glance_tn))
 
                 if (this.parsed.input.exoshock < 7) {
-                    pen = boost_damage(pen, on_target_number(this.parsed.input.exoshock), 2)
+                    pen = add_additional_hit(pen, on_target_number(this.parsed.input.exoshock), 2)
                     special_rules_text_arr.push(`Exoshock (${this.parsed.input.exoshock}+)`)
                 }
 
@@ -122,16 +123,15 @@ class ParseResult {
                     "text": `Lost hull points on ${target.name} (A${target.t}) from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength}, AP ${weapon_ap} ${special_rules_text} weapon`,
                 }
 
-                let damage_table_bonus = 0
+                let damage_table_die = d6
                 if (weapon_ap === 2) {
-                    damage_table_bonus = 1
+                    damage_table_die = ap2TableDie
                 }
                 if (weapon_ap === 1) {
-                    damage_table_bonus = 2
+                    damage_table_die = ap1TableDie
                 }
 
-                const damage_table_roll = multiply(pen, add(d6, damage_table_bonus))
-
+                const damage_table_roll = multiply(pen, damage_table_die)
                 this.parsed.body[output_counter++] = {
                     "type": "output",
                     "expression": DisplayAsDamageTable(n_dice(damage_table_roll, num_shots)),
