@@ -76,6 +76,7 @@ export let waitingWorker = atom({key: "waitingWorker", default: null});
 export let collapse = atom({key: "collapse", default: true});
 export let mode = atom({key: "mode", default: "normal"});
 export let transpose = atom({key: "transpose", default: false});
+export let hideInsignificant = atom({key: "hideInsignificant", default: false});
 
 let working = false;
 

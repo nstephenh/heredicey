@@ -10,7 +10,7 @@ import {
 } from "../material";
 
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-import { useRecoilValue } from "recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
 
 import * as state from "../state";
 
@@ -32,6 +32,8 @@ export default function CalcTable() {
   let sample = useRecoilValue(state.sample);
   const theme = useTheme();
   const classes = useStyles();
+  const [hideInsignificant, setHideInsignificant] = useRecoilState(state.hideInsignificant);
+
   return (
     <>
       {sample.map((table, idx) => (
@@ -51,7 +53,9 @@ export default function CalcTable() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {table.entries.map((row, rowid) => (
+              {table.entries.filter((row) =>{
+                return !hideInsignificant || row.uv >= .01
+              }).map((row, rowid) => (
                 <TableRow key={row.name} className={classes.veryDense}>
                   <TableCell
                     key={rowid}
