@@ -32,7 +32,9 @@ export default function CalcTable() {
   let sample = useRecoilValue(state.sample);
   const theme = useTheme();
   const classes = useStyles();
-  const [hideInsignificant, setHideInsignificant] = useRecoilState(state.hideInsignificant);
+  const [hideInsignificant] = useRecoilState(state.hideInsignificant);
+  const [mode] = useRecoilState(state.mode);
+
 
   return (
     <>
@@ -54,7 +56,7 @@ export default function CalcTable() {
             </TableHead>
             <TableBody>
               {table.entries.filter((row) =>{
-                return !hideInsignificant || row.uv >= .01
+                return (!hideInsignificant || row.uv >= .01) && !(mode === "atleast" && row.name === 0 && row.uv > 99.99)
               }).map((row, rowid) => (
                 <TableRow key={row.name} className={classes.veryDense}>
                   <TableCell
