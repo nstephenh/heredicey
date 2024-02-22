@@ -1,8 +1,24 @@
 ## Documentation
 
-Dicey is based on the wonderful [AnyDice](https://anydice.com/) made by [Jasper Flick](https://catlikecoding.com/jasper-flick/). The syntax has been changed somewhat, with dice notation being aligned closer to [Foundry](https://foundryvtt.com/article/dice-advanced/) and [Roll20](https://wiki.roll20.net/Dice_Reference).
+### For Horus Heresy (2022) weapons
 
-### Basics
+Simply tweak the displayed rules and stats to match the profile you would like to target.
+The output shows 1 target which is adjustable and always shows power armor, cataphractii armour, and a rhino.
+
+#### Special rules
+Any rule with a value of 7+ should be ignored as it is not possible to roll a 7 on a d6.
+
+Rules will only display in the output if there is some chance of the rule applying to the target. 
+For example, exoshock will only be noted if the target is a vehicle.
+
+#### Vehicle damage table
+
+The vehicle damage table is shown as the chances of the given event happening in total for all shots. 
+It does not show the number of those results.
+
+### As a calculator
+I don't currently have the calculator working as I haven't messed with the parser at all,
+but I will look into it in the future or submit a pr upstream.
 
 Dicey fundamentally operates as a calculator, but instead of operating only on numbers, it can also operate on probabilities.
 
@@ -16,6 +32,11 @@ Notice the calculation starts with the word `output`. This instructs Dicey to di
 
 <kbd>output 2+2
 output 2+2\*2</kbd>
+
+### Are there any changes to the math package from dicey?
+I've added the "++" operator, which adds the probability of non-zero results from two given clouds.
+I also think I've got re-rolls for non-dice working.
+
 
 ### Dice
 

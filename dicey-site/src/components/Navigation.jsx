@@ -25,7 +25,7 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 
 
 import DescriptionIcon from "@material-ui/icons/Description";
-
+import BallotIcon from "@material-ui/icons/Contactless";
 import ContactlessIcon from "@material-ui/icons/Contactless";
 
 const useStyles = makeStyles(styles);
@@ -35,7 +35,7 @@ export default function Navigation({open, handleDrawerClose}) {
 
     let links = [
         ["Damage Probability", "/", <DescriptionIcon/>, {exact: true}],
-        // ["Documentation", "/docs", <BallotIcon />],
+        ["Documentation", "/docs", <BallotIcon/>],
         // ["Examples", "/examples", <ExploreIcon />],
         //["Function Library", "/functions", <FunctionsIcon />],
         ["About", "/about", <ContactlessIcon/>],

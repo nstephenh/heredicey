@@ -4,12 +4,7 @@ let about = fs.readFileSync(join(__dirname, '..', 'src', 'docs', 'about.md'), 'u
 let docs = fs.readFileSync(join(__dirname, '..', 'src', 'docs', 'docs.md'), 'utf8');
 
 let out = `
-# Dicey
-[![dicey-math tests](https://github.com/basicer/dicey/actions/workflows/tests.yml/badge.svg)](https://github.com/basicer/dicey/actions/workflows/tests.yml)
-[![Build and Deploy](https://github.com/basicer/dicey/actions/workflows/main.yml/badge.svg)](https://github.com/basicer/dicey/actions/workflows/main.yml)
-[![MIT License][license-image]][license-url]
-
-### [dicey.js.org](http://dicey.js.org)
+# Heredicey
 
 ${about}
 
