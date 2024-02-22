@@ -505,7 +505,6 @@ class BinaryOperation {
                 let reroll = [];
                 let okay = [];
                 for (let i = 0; i < e.k.length; ++i) {
-                    console.log(e, i)
                     if (BinaryOperation.applyOp(e.k[i], this.op, val)) {
                         if (this.opMode === "ro") {
                             if (!e.sources){
@@ -523,7 +522,6 @@ class BinaryOperation {
                             }
                             let cbi = new CloudBuilder();
                             for (let o of c.values) {
-                                console.log(o.k[0], this.op, val);
                                 if (!BinaryOperation.applyOp(o.k[0], this.op, val)) {
                                     cbi.add(o.k, o.w);
                                 }
