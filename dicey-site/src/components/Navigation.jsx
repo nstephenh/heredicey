@@ -23,22 +23,10 @@ import {
 
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 
-//import ListSubheader from "@material-ui/core/ListSubheader";
 
-//import MenuIcon from "@material-ui/icons/Menu";
-//import ListIcon from "@material-ui/icons/List";
-//import DashboardIcon from "@material-ui/icons/Dashboard";
-//import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
-import FunctionsIcon from "@material-ui/icons/Functions";
-//import BarChartIcon from "@material-ui/icons/BarChart";
-//import LayersIcon from "@material-ui/icons/Layers";
 import DescriptionIcon from "@material-ui/icons/Description";
-import BallotIcon from "@material-ui/icons/Ballot";
-//import FindInPageIcon from "@material-ui/icons/FindInPage";
-import ContactlessIcon from "@material-ui/icons/Contactless";
-// import ExploreIcon from "@material-ui/icons/Explore";
 
-//import AssignmentIcon from "@material-ui/icons/Assignment";
+import ContactlessIcon from "@material-ui/icons/Contactless";
 
 const useStyles = makeStyles(styles);
 

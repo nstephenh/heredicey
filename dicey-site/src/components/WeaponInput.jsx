@@ -135,7 +135,7 @@ export default function WeaponInput() {
                         control={
                             <Checkbox
                                 id='sunder_fish'
-                                checked={sunder == 2}
+                                checked={sunder === 2}
                                 onChange={(e) => setSunder(e.target.checked ? 2 : 1)}
                             />}
                         label="Fish for Penetrating Hits"
