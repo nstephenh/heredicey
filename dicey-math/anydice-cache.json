@@ -22504,5 +22504,85 @@
 			"maxY": 6.00387231367
 		},
 		"query": "output d6d6"
+	},
+	"output [highest 1 of 2d6]": {
+		"distributions": {
+			"data": [
+				[
+					[
+						1,
+						2.77777777778
+					],
+					[
+						2,
+						8.33333333333
+					],
+					[
+						3,
+						13.8888888889
+					],
+					[
+						4,
+						19.4444444444
+					],
+					[
+						5,
+						25
+					],
+					[
+						6,
+						30.5555555556
+					]
+				]
+			],
+			"labels": [
+				"output 1"
+			],
+			"minX": 1,
+			"maxX": 6,
+			"minY": 0,
+			"maxY": 30.5555555556
+		},
+		"query": "output [highest 1 of 2d6]"
+	},
+	"function: reroll R:n under N:n {\n   if R < N { result: [highest 1 of 2d6] } else {result: R}\n}\n\noutput [reroll [highest 1 of 2d6] under 5]": {
+		"distributions": {
+			"data": [
+				[
+					[
+						1,
+						1.23456790123
+					],
+					[
+						2,
+						3.7037037037
+					],
+					[
+						3,
+						6.17283950617
+					],
+					[
+						4,
+						8.64197530864
+					],
+					[
+						5,
+						36.1111111111
+					],
+					[
+						6,
+						44.1358024691
+					]
+				]
+			],
+			"labels": [
+				"output 1"
+			],
+			"minX": 1,
+			"maxX": 6,
+			"minY": 0,
+			"maxY": 44.1358024691
+		},
+		"query": "function: reroll R:n under N:n {\n   if R < N { result: [highest 1 of 2d6] } else {result: R}\n}\n\noutput [reroll [highest 1 of 2d6] under 5]"
 	}
 }
