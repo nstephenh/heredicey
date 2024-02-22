@@ -70,20 +70,28 @@ class ParseResult {
         //         "type": "math",
         //         "left": {
         //             "type": "math",
-        //             left: {
-        //                 "type": "die",
-        //                 "times": 2,
-        //                 "sides": 6
-        //             },
+        //             left: twoD6kh,
         //             "op": "+",
         //             "right": 0
         //         },
         //         "m": "r",
-        //         "op": "<",
-        //         "right": 5,
+        //         "op": ">",
+        //         "right": 3,
         //
         //     },
-        //     "text": `2d6 rerolling values that are less than 5`,
+        //     "text": `2d6kh rerolling values that are greater than 3 (should be 11%, 33%, 55%)`,
+        // }
+        // let die_above_rend = filter_to_value(twoD6kh, ">=", 5)
+        // let die_below_rend= filter_to_value(twoD6kh, "<", 5)
+        // this.parsed.body[output_counter++] = {
+        //     "type": "output",
+        //     "expression": die_above_rend,
+        //     "text": `Values above 5 on 2d6kh`,
+        // }
+        // this.parsed.body[output_counter++] = {
+        //     "type": "output",
+        //     "expression": die_below_rend,
+        //     "text": `values below 5 on 2d6kh`,
         // }
 
         for (let target of [
@@ -106,21 +114,30 @@ class ParseResult {
             if (target.t >= 10) {
                 const to_glance_tn = target.t - weapon_strength
                 console.log("Glancing on " + to_glance_tn)
-                let pen_roll = d6
+                if (this.parsed.input.ordnance) {
+                    special_rules_text_arr.push(`Ordnance`)
+                }
+                let pen_roll = this.parsed.input.ordnance ? twoD6kh : d6;
                 let reroll_hits_under = 7
                 console.log("Sunder ?" + this.parsed.input.sunder)
 
                 if (this.parsed.input.sunder > 0) {
                     // Either reroll all misses or misses + glances
                     reroll_hits_under = this.parsed.input.sunder === 2 ? to_glance_tn + 1 : to_glance_tn
-                    pen_roll = reroll_less_than_threshold(d6, reroll_hits_under)
                     console.log("Rerolling pen rolls under " + reroll_hits_under)
+                    if (this.parsed.input.sunder === 2) {
+                        special_rules_text_arr.push(`Sunder (rerolling glances to look for pens)`)
+                    } else {
+                        special_rules_text_arr.push(`Sunder`)
+
+                    }
 
                 }
-
-                if (this.parsed.input.rending < 7) {
-                    pen_roll = rendingPenDie(this.parsed.input.rending, reroll_hits_under)
+                if (this.parsed.input.rending < 7) { //Will handle sunder if present
+                    pen_roll = rendingPenRoll(pen_roll, this.parsed.input.rending, reroll_hits_under)
                     special_rules_text_arr.push(`Rending (${this.parsed.input.rending}+)`)
+                } else if (this.parsed.input.sunder > 0) { // Handle sunder if no rending
+                    pen_roll = reroll_less_than_threshold(pen_roll, reroll_hits_under)
                 }
 
                 let glance = multiply(successful_hit, at_threshold(pen_roll, to_glance_tn))
@@ -137,7 +154,7 @@ class ParseResult {
                 this.parsed.body[output_counter++] = {
                     "type": "output",
                     "expression": n_dice(glance_and_pen, num_shots),
-                    "text": `Lost hull points on ${target.name} (T${target.t}) from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength}, AP ${weapon_ap} ${special_rules_text} weapon`,
+                    "text": `Lost hull points on ${target.name} (A${target.t}) from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength}, AP ${weapon_ap} ${special_rules_text} weapon`,
                 }
 
                 let damage_table_bonus = 0
@@ -303,6 +320,38 @@ function makeDiceCloudy(dice) {
 }
 
 /**
+ * Use reroll to get a subset of the probabilities for a given occurrence.
+ * @param {{type:string}} cloud_or_die
+ * @param {string} op >=, <=, > or <
+ * @param {number} val
+ * @returns {{type:string}}
+ */
+function filter_to_value(cloud_or_die, op, val) {
+    // Because we're re-rolling all values, we need to invert the operator.
+    switch (op) {
+        case ">=":
+            op = "<"
+            break
+        case "<=":
+            op = ">"
+            break
+        case ">":
+            op = "<="
+            break
+        case "<":
+            op = ">="
+            break
+    }
+    return {
+        "type": "math",
+        "left": makeDiceCloudy(cloud_or_die),
+        "m": "r",
+        "op": op,
+        "right": val,
+    }
+}
+
+/**
  * @param {{type: string}} dice A die or expression that we can roll
  * @param {{number}} threshold number to reroll if we're under
  */
@@ -317,28 +366,21 @@ function reroll_less_than_threshold(dice, threshold) {
 }
 
 /**
- * Gives us the equivalent of a d6 (possibly rerolled) + conditional d3 if at or over rendingValue
+ * Gives us the equivalent of in_dice + conditional d3 if at or over rendingValue
+ * @param {{type:string}} in_dice
  * @param {number} rendingValue
- * @param {number} rerollUnder threshold to reroll at
+ * @param {number} rerollUnder threshold to reroll at, if under 7.
  */
-function rendingPenDie(rendingValue, rerollUnder = 7, ordnance) {
-    let rolled_for_pen = d6
-    const sides_on_die_that_rend = 7 - rendingValue
-    const max_non_rending_value = rendingValue - 1
-    let die_above_rend = {
-        "type": "die",
-        "sides": sides_on_die_that_rend
-    }
-    let die_below_rend = {
-        "type": "die",
-        "sides": max_non_rending_value
-    }
-    console.log(`Weighing based on d6 >= ${rendingValue}, ${max_non_rending_value} ` +
-        `+ d${sides_on_die_that_rend} + d3, d${max_non_rending_value}`)
+function rendingPenRoll(in_dice, rendingValue, rerollUnder = 7) {
+    let rolled_for_pen = in_dice
+    let die_above_rend = filter_to_value(in_dice, ">=", rendingValue)
+    let die_below_rend = filter_to_value(in_dice, "<", rendingValue)
+    console.log(`Weighing based on d6 >= ${rendingValue}, values at or above rending ` +
+        `+ d3, values below rending`)
     if (rerollUnder < 7) {
-        rolled_for_pen = reroll_less_than_threshold(d6, rerollUnder)
-        // This die will have the max_non_rending_value added to it, so we need to reduce the reroll threshold
-        die_above_rend = reroll_less_than_threshold(die_above_rend, rerollUnder - max_non_rending_value)
+        console.log("\twith a re-roll")
+        rolled_for_pen = reroll_less_than_threshold(in_dice, rerollUnder)
+        die_above_rend = reroll_less_than_threshold(die_above_rend, rerollUnder)
         die_below_rend = reroll_less_than_threshold(die_below_rend, rerollUnder)
     }
     return {
@@ -353,12 +395,7 @@ function rendingPenDie(rendingValue, rerollUnder = 7, ordnance) {
             },
             { // Rending shot
                 "type": "math",
-                "left": {
-                    "type": "math",
-                    "left": max_non_rending_value, //  start with the max of a non-rending roll
-                    "op": "+",
-                    "right": die_above_rend, //Add the possible values we could have rolled to get what we rolled.
-                },
+                "left": die_above_rend, //Values we could have rolled that rend
                 "op": "+",
                 "right": { //Add the bonus d3
                     "type": "die",

@@ -28,6 +28,8 @@ export default function WeaponInput() {
     const [rending, setRending] = useRecoilState(state.rending);
     const [exoshock, setExoshock] = useRecoilState(state.exoshock);
     const [sunder, setSunder] = useRecoilState(state.sunder);
+    const [ordnance, setOrdnance] = useRecoilState(state.ordnance);
+
 
 
     return (
@@ -141,6 +143,17 @@ export default function WeaponInput() {
                     />
                     : <></>
                 }
+                <FormControlLabel
+                    value="top"
+                    control={
+                        <Checkbox
+                            id='ordnance'
+                            checked={ordnance}
+                            onChange={(e) => setOrdnance(e.target.checked)}
+                        />}
+                    label="Ordnance"
+                    labelPlacement="top"
+                />
 
             </CardContent>
         </Card>
