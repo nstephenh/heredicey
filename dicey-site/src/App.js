@@ -199,9 +199,9 @@ export default function App() {
                   }
                 >
                   <Switch>
-                    <Route exact path="/" component={Calculate} />
+                    <Route exact path="/heredicey/" component={Calculate} />
                     <Route
-                      path="/:page"
+                      path="/heredicey/:page"
                       render={({ match }) => {
                         return <Docs page={match.params.page} />;
                       }}

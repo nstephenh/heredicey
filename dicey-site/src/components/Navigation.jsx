@@ -34,11 +34,11 @@ export default function Navigation({open, handleDrawerClose}) {
     const classes = useStyles();
 
     let links = [
-        ["Damage Probability", "/", <DescriptionIcon/>, {exact: true}],
-        ["Documentation", "/docs", <BallotIcon/>],
+        ["Damage Probability", "/heredicey/", <DescriptionIcon/>, {exact: true}],
+        ["Documentation", "/heredicey/docs", <BallotIcon/>],
         // ["Examples", "/examples", <ExploreIcon />],
         //["Function Library", "/functions", <FunctionsIcon />],
-        ["About", "/about", <ContactlessIcon/>],
+        ["About", "/heredicey/about", <ContactlessIcon/>],
     ];
     return (
         <Drawer
@@ -83,7 +83,7 @@ export default function Navigation({open, handleDrawerClose}) {
                 <Box className={classes.filler}>
                     <Box className={classes.byline}>
                         Source on {" "}
-                        <a className={classes.muted} href="https://github.com/nstephenh/heredicy">
+                        <a className={classes.muted} href="https://github.com/nstephenh/heredicey">
                             Github
                         </a>
                         <br/>
