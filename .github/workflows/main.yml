@@ -14,7 +14,6 @@ jobs:
         working-directory: dicey-site
         env:
           REACT_APP_GIT_SHA: ${{ github.sha }}
-          REACT_APP_GA_UA: ${{ secrets.REACT_APP_GA_UA }}
         run: |
           yarn
           yarn build
