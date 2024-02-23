@@ -23,6 +23,8 @@ export default function WeaponInput() {
     const [str, setStr] = useRecoilState(state.str);
     const [ap, setAp] = useRecoilState(state.ap);
     const [shots, setShots] = useRecoilState(state.shots);
+    const [twinLinked, setTwinLinked] = useRecoilState(state.twinLinked);
+
 
     const [breaching, setBreaching] = useRecoilState(state.breaching);
     const [rending, setRending] = useRecoilState(state.rending);
@@ -85,6 +87,17 @@ export default function WeaponInput() {
                         shrink: true,
                     }}
                     onChange={(e) => setShots(e.target.value)}
+                />
+                <FormControlLabel
+                    value="top"
+                    control={
+                        <Checkbox
+                            id='twin-linked'
+                            checked={twinLinked}
+                            onChange={(e) => setTwinLinked(e.target.checked)}
+                        />}
+                    label="Twin-Linked"
+                    labelPlacement="top"
                 />
             </CardContent>
             <CardContent className={classes.card}>

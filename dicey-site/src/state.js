@@ -17,6 +17,8 @@ export let ws_or_bs = atom({key: "ws_or_bs", default: "4"})
 export let str = atom({key: "str", default: "9"})
 export let ap = atom({key: "ap", default: "4"})
 export let shots = atom({key: "shots", default: "2"})
+
+export let twinLinked = atom({key: "twinLinked", default: true})
 export let breaching = atom({key: "breaching", default: "7"})
 export let rending = atom({key: "rending", default: "7"})
 export let exoshock = atom({key: "exoshock", default: "7"})
@@ -47,6 +49,7 @@ export let parsed = selector({
             str: Number(get(str)),
             ap: Number(get(ap)),
             shots: Number(get(shots)),
+            twinLinked: get(twinLinked),
 
             breaching: Number(get(breaching)),
             rending: Number(get(rending)),

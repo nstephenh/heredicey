@@ -75,7 +75,15 @@ class ParseResult {
 
 
             let special_rules_text_arr = []
-            const successful_hit = on_x_up(to_hit)
+            let successful_hit = on_x_up(to_hit)
+            if (this.parsed.input.twinLinked) {
+                // Can't call re-roll the result of on_x_up because it returns 0-1
+                // We could just use twoD6kh but that could be an issue for any
+                // future special rules that trigger of the to-hit roll.
+                successful_hit = at_or_above_threshold(reroll_less_than_threshold(d6, to_hit), to_hit)
+                special_rules_text_arr.push(`Twin-linked`)
+
+            }
 
             //Handling for vehicles
             if (target.t >= 10) {
@@ -86,7 +94,7 @@ class ParseResult {
                 }
                 let pen_roll = this.parsed.input.ordnance ? twoD6kh : d6;
                 let reroll_hits_under = 7
-                console.log("Sunder ?" + this.parsed.input.sunder)
+                console.log("Sunder? " + this.parsed.input.sunder)
 
                 if (this.parsed.input.sunder > 0) {
                     // Either reroll all misses or misses + glances
