@@ -12,7 +12,7 @@ Dicey is open-source under the MIT license.  Its source be found on [github](htt
 
 ### I think I found a problem with your math.
 
-Please file a bug report on the [Issue Tracker](https://github.com/nstephenh/dicey/issues/new).
+Please file a bug report on the [Issue Tracker](https://github.com/nstephenh/heredicey/issues/new).
 
 
 ### Are there any changes to the math package from dicey?
