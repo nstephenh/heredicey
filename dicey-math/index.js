@@ -1,9 +1,10 @@
 let parser;
 const {
-    d6, twoD6kh, ap1TableDie, ap2TableDie,
+    d6, twoD6kh, ap1TableDie, ap2TableDie, d3,
     makeDiceCloudy, filter_to_value, reroll_less_than_threshold, rendingPenRoll,
-    at_or_above_threshold, at_threshold, above_threshold, boost_damage, on_target_number,
-    failed_target_number, n_dice, multiply, add, sum_results, count,
+    add_independent_condition,
+    at_or_above_threshold, at_threshold, above_threshold, boost_damage, on_x_up,
+    failed_target_number, n_dice, multiply, multiply_odds, add, sum_odds, count,
     DisplayAsDamageTable
 } = require("./parser_commands")
 
@@ -74,7 +75,7 @@ class ParseResult {
 
 
             let special_rules_text_arr = []
-            const successful_hit = on_target_number(to_hit)
+            const successful_hit = on_x_up(to_hit)
 
             //Handling for vehicles
             if (target.t >= 10) {
@@ -106,15 +107,20 @@ class ParseResult {
                     pen_roll = reroll_less_than_threshold(pen_roll, reroll_hits_under)
                 }
 
-                let glance = multiply(successful_hit, at_threshold(pen_roll, to_glance_tn))
-                let pen = multiply(successful_hit, above_threshold(pen_roll, to_glance_tn))
+                let glance = multiply_odds(successful_hit, at_threshold(pen_roll, to_glance_tn))
+
+                if (this.parsed.input.plasmaBurn) {
+                    glance = multiply_odds(glance, add_independent_condition(on_x_up(4), d3, 1))
+                }
+
+                let pen = multiply_odds(successful_hit, above_threshold(pen_roll, to_glance_tn))
 
                 if (this.parsed.input.exoshock < 7) {
-                    pen = boost_damage(pen, on_target_number(this.parsed.input.exoshock), 2)
+                    pen = boost_damage(pen, on_x_up(this.parsed.input.exoshock), 2)
                     special_rules_text_arr.push(`Exoshock (${this.parsed.input.exoshock}+)`)
                 }
 
-                const glance_and_pen = sum_results(glance, pen)
+                const glance_and_pen = sum_odds(glance, pen)
 
                 const special_rules_text = special_rules_text_arr.length ? "with " + special_rules_text_arr.join(", ") : "";
                 this.parsed.body[output_counter++] = {
@@ -165,7 +171,7 @@ class ParseResult {
             }
 
             // display_wound is all wounding hits, no matter if they're special or not.
-            const display_wound = multiply(successful_hit, on_target_number(to_wound_t_n))
+            const display_wound = multiply_odds(successful_hit, on_x_up(to_wound_t_n))
 
 
             console.log("Wounding on " + to_wound_t_n)
@@ -193,15 +199,15 @@ class ParseResult {
             }
 
             // Roll to wound
-            const no_special_rule_wounds = multiply(successful_hit, on_target_number(to_wound_t_n))
-            const ap2_wounds = multiply(successful_hit, on_target_number(resolve_at_ap2_threshold))
+            const no_special_rule_wounds = multiply_odds(successful_hit, on_x_up(to_wound_t_n))
+            const ap2_wounds = multiply_odds(successful_hit, on_x_up(resolve_at_ap2_threshold))
 
             // Roll saves
-            const failed_saves = multiply(no_special_rule_wounds, failed_target_number(target.save))
-            const failed_invulns = multiply(ap2_wounds, failed_target_number(target.invuln))
+            const failed_saves = multiply_odds(no_special_rule_wounds, failed_target_number(target.save))
+            const failed_invulns = multiply_odds(ap2_wounds, failed_target_number(target.invuln))
 
             // Sum both types of failed save
-            const final_damage = sum_results(failed_saves, failed_invulns)
+            const final_damage = sum_odds(failed_saves, failed_invulns)
 
             // Prepare this.parsed to display results
             const special_rules_text = special_rules_text_arr.length ? "with " + special_rules_text_arr.join(", ") : "";

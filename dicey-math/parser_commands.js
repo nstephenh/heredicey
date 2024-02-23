@@ -3,6 +3,11 @@
  * It does not have anything to do with parsing.
  */
 
+const d3 = {
+    "type": "die",
+    "times": 1,
+    "sides": 3
+};
 
 const d6 = {
     "type": "die",
@@ -119,6 +124,18 @@ function rendingPenRoll(in_dice, rendingValue, rerollUnder = 7) {
     }
 }
 
+function add_independent_condition(condition, regular_result, added) {
+    return {
+        "type": "call",
+        "name": "iif",
+        "args": [
+            condition,
+            add(regular_result, added),
+            regular_result,
+        ]
+    }
+}
+
 
 function at_or_above_threshold(dice, target_number) {
 
@@ -164,11 +181,10 @@ function boost_damage(damage_1_event, condition, new_damage) {
     })
 }
 
-function on_target_number(target_number) {
-
+function on_x_up(x) {
     return {
         "type": "math",
-        "right": target_number,
+        "right": x,
         "left": d6,
         "m": "cs",
         "op": ">="
@@ -202,6 +218,17 @@ function multiply(a, b) {
     }
 }
 
+function multiply_odds(a, b) {
+    return {
+        "type": "call",
+        "name": "iif",
+        "args": [a,
+            b,
+            0
+        ]
+    }
+}
+
 
 function add(a, b) {
 
@@ -213,7 +240,7 @@ function add(a, b) {
     }
 }
 
-function sum_results(a, b) {
+function sum_odds(a, b) {
     return {
         "type": "math",
         "right": a,
@@ -263,6 +290,7 @@ const ap1TableDie = {
     }
 }
 
+
 function DisplayAsDamageTable(roll) {
     return {
         "type": "call",
@@ -309,9 +337,10 @@ function DisplayAsDamageTable(roll) {
 
 
 module.exports = {
-    d6, twoD6kh, ap1TableDie, ap2TableDie,
+    d6, twoD6kh, ap1TableDie, ap2TableDie, d3,
     makeDiceCloudy, filter_to_value, reroll_less_than_threshold, rendingPenRoll,
-    at_or_above_threshold, at_threshold, above_threshold, boost_damage, on_target_number,
-    failed_target_number, n_dice, multiply, add, sum_results, count,
+    add_independent_condition,
+    at_or_above_threshold, at_threshold, above_threshold, boost_damage, on_x_up,
+    failed_target_number, n_dice, multiply, multiply_odds, add, sum_odds, count,
     DisplayAsDamageTable
 }

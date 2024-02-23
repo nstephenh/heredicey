@@ -29,6 +29,7 @@ export default function WeaponInput() {
     const [exoshock, setExoshock] = useRecoilState(state.exoshock);
     const [sunder, setSunder] = useRecoilState(state.sunder);
     const [ordnance, setOrdnance] = useRecoilState(state.ordnance);
+    const [plasmaBurn, setPlasmaBurn] = useRecoilState(state.plasmaBurn);
 
 
 
@@ -152,6 +153,17 @@ export default function WeaponInput() {
                             onChange={(e) => setOrdnance(e.target.checked)}
                         />}
                     label="Ordnance"
+                    labelPlacement="top"
+                />
+                <FormControlLabel
+                    value="top"
+                    control={
+                        <Checkbox
+                            id='plasma-burn'
+                            checked={plasmaBurn}
+                            onChange={(e) => setPlasmaBurn(e.target.checked)}
+                        />}
+                    label="Plasma Burn"
                     labelPlacement="top"
                 />
 

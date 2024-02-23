@@ -12,16 +12,18 @@ export let query = atom({key: "query", default: "output 3d6"});
 export let calculatorMode = atom({key: "calculatorMode", default: false})
 
 
-export let weaponName = atom({key: "weaponName", default: "1/4th of Accelerator Autocannon"})
+export let weaponName = atom({key: "weaponName", default: "Omega Plasma Array"})
 export let ws_or_bs = atom({key: "ws_or_bs", default: "4"})
-export let str = atom({key: "str", default: "7"})
+export let str = atom({key: "str", default: "9"})
 export let ap = atom({key: "ap", default: "4"})
 export let shots = atom({key: "shots", default: "2"})
 export let breaching = atom({key: "breaching", default: "7"})
-export let rending = atom({key: "rending", default: "6"})
-export let exoshock = atom({key: "exoshock", default: "6"})
+export let rending = atom({key: "rending", default: "7"})
+export let exoshock = atom({key: "exoshock", default: "7"})
 export let sunder = atom({key: "sunder", default: 0}) // 0 = no, 1 = yes, 2 = reroll glances
 export let ordnance = atom({key: "ordnance", default: false})
+export let plasmaBurn = atom({key: "plasmaBurn", default: true})
+
 
 
 export let targetName = atom({key: "targetName", default: "Contemptor"})
@@ -51,6 +53,7 @@ export let parsed = selector({
             exoshock: Number(get(exoshock)),
             sunder: Number(get(sunder)),
             ordnance: get(ordnance),
+            plasmaBurn: get(plasmaBurn),
 
 
             targetName: get(targetName),
