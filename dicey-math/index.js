@@ -82,7 +82,6 @@ class ParseResult {
                 // future special rules that trigger of the to-hit roll.
                 successful_hit = at_or_above_threshold(reroll_less_than_threshold(d6, to_hit), to_hit)
                 special_rules_text_arr.push(`Twin-linked`)
-
             }
 
             //Handling for vehicles
@@ -104,10 +103,9 @@ class ParseResult {
                         special_rules_text_arr.push(`Sunder (rerolling glances to look for pens)`)
                     } else {
                         special_rules_text_arr.push(`Sunder`)
-
                     }
-
                 }
+
                 if (this.parsed.input.rending < 7) { //Will handle sunder if present
                     pen_roll = rendingPenRoll(pen_roll, this.parsed.input.rending, reroll_hits_under)
                     special_rules_text_arr.push(`Rending (${this.parsed.input.rending}+)`)
@@ -115,20 +113,30 @@ class ParseResult {
                     pen_roll = reroll_less_than_threshold(pen_roll, reroll_hits_under)
                 }
 
-                let glance = multiply_odds(successful_hit, at_threshold(pen_roll, to_glance_tn))
-                let pen = multiply_odds(successful_hit, above_threshold(pen_roll, to_glance_tn))
+                let glance_odds = multiply_odds(successful_hit, at_threshold(pen_roll, to_glance_tn))
+                let pen_odds = multiply_odds(successful_hit, above_threshold(pen_roll, to_glance_tn))
 
-                if (this.parsed.input.exoshock < 7) {
-                    pen = boost_damage(pen, on_x_up(this.parsed.input.exoshock), 2)
-                    special_rules_text_arr.push(`Exoshock (${this.parsed.input.exoshock}+)`)
-                }
-                let lost_hull_points = sum_odds(glance, pen)
+
+                let hull_points_per_glance = 1
+                let hull_points_per_pen = 1
+                let dt_rolls_per_pen = 1
+
                 if (this.parsed.input.plasmaBurn) {
-                    // Will fail if exoshock is turned on, as there will be a 2 in pen.
-                    // If we used multiply(), we wouldn't get 2d3, we'd get 2*(d3), so skipping 5 and 7
-                    lost_hull_points = multiply_odds(lost_hull_points, add_independent_condition(on_x_up(4), 1, d3))
+                    hull_points_per_glance = add_independent_condition(on_x_up(4), d3, hull_points_per_glance)
+                    hull_points_per_pen = add_independent_condition(on_x_up(4), d3, hull_points_per_pen)
                     special_rules_text_arr.push(`Plasma Burn`)
                 }
+
+                if (this.parsed.input.exoshock < 7) {
+                    hull_points_per_pen = add_independent_condition(on_x_up(this.parsed.input.exoshock), 1, hull_points_per_pen)
+                    dt_rolls_per_pen = add_independent_condition(on_x_up(this.parsed.input.exoshock), 1, dt_rolls_per_pen)
+                    special_rules_text_arr.push(`Exoshock (${this.parsed.input.exoshock}+)`)
+                }
+
+                const lost_hull_points = sum_odds(
+                    multiply_odds(glance_odds, hull_points_per_glance),
+                    multiply_odds(pen_odds, hull_points_per_pen)
+                ) // Since these events are independent we can add them together.
 
                 const special_rules_text = special_rules_text_arr.length ? "with " + special_rules_text_arr.join(", ") : "";
                 this.parsed.body[output_counter++] = {
@@ -147,7 +155,7 @@ class ParseResult {
 
                 this.parsed.body[output_counter++] = {
                     "type": "output",
-                    "expression": n_dice(pen, num_shots),
+                    "expression": n_dice(multiply_odds(pen_odds, hull_points_per_pen), num_shots),
                     "text": `Penetrating hits for ${target.name} over ${num_shots} shots`,
                 }
                 this.parsed.body[output_counter++] = {

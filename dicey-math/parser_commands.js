@@ -3,6 +3,28 @@
  * It does not have anything to do with parsing.
  */
 
+/**
+ * @param {number || {type: string}} sides
+ */
+function mkDie(sides){
+    return {
+        "type": "die",
+        "times": 1,
+        "sides": sides
+    }
+}
+/**
+ * @param {[number || {type: string}]} sides
+ */
+function mkSetDie(sides){
+    return mkDie(
+        {
+            "type": "set",
+            "elements": sides
+        }
+    )
+}
+
 const d3 = {
     "type": "die",
     "times": 1,
@@ -124,7 +146,7 @@ function rendingPenRoll(in_dice, rendingValue, rerollUnder = 7) {
     }
 }
 
-function add_independent_condition(condition, regular_result, added) {
+function add_independent_condition(condition, added, regular_result) {
     return {
         "type": "call",
         "name": "iif",
@@ -240,12 +262,18 @@ function add(a, b) {
     }
 }
 
+/**
+ * Add the odds of the outcome of two independent events with a total nonzero outcome less than 1.
+ * @param {{}} a
+ * @param {{}} b
+ * @returns {{type: "math", op: "++", left: {}, right: {}}}
+ */
 function sum_odds(a, b) {
     return {
         "type": "math",
-        "right": a,
-        "left": b,
-        "op": "++"
+        "op": "++",
+        "left": a,
+        "right": b
     }
 }
 
