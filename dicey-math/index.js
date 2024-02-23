@@ -116,24 +116,24 @@ class ParseResult {
                 }
 
                 let glance = multiply_odds(successful_hit, at_threshold(pen_roll, to_glance_tn))
-
-                if (this.parsed.input.plasmaBurn) {
-                    glance = multiply_odds(glance, add_independent_condition(on_x_up(4), d3, 1))
-                }
-
                 let pen = multiply_odds(successful_hit, above_threshold(pen_roll, to_glance_tn))
 
                 if (this.parsed.input.exoshock < 7) {
                     pen = boost_damage(pen, on_x_up(this.parsed.input.exoshock), 2)
                     special_rules_text_arr.push(`Exoshock (${this.parsed.input.exoshock}+)`)
                 }
-
-                const glance_and_pen = sum_odds(glance, pen)
+                let lost_hull_points = sum_odds(glance, pen)
+                if (this.parsed.input.plasmaBurn) {
+                    // Will fail if exoshock is turned on, as there will be a 2 in pen.
+                    // If we used multiply(), we wouldn't get 2d3, we'd get 2*(d3), so skipping 5 and 7
+                    lost_hull_points = multiply_odds(lost_hull_points, add_independent_condition(on_x_up(4), 1, d3))
+                    special_rules_text_arr.push(`Plasma Burn`)
+                }
 
                 const special_rules_text = special_rules_text_arr.length ? "with " + special_rules_text_arr.join(", ") : "";
                 this.parsed.body[output_counter++] = {
                     "type": "output",
-                    "expression": n_dice(glance_and_pen, num_shots),
+                    "expression": n_dice(lost_hull_points, num_shots),
                     "text": `Lost hull points on ${target.name} (A${target.t}) from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength}, AP ${weapon_ap} ${special_rules_text} weapon`,
                 }
 
