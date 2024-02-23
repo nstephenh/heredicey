@@ -260,18 +260,68 @@ function count(expression, value) {
         ]
     }
 }
+const damageTableDie = {
+    "type": "die",
+    "sides": {
+        "type": "set",
+        "elements": [
+            {
+                "type": "string",
+                "value": "1-3 Crew Shaken"
+            },
+            {
+                "type": "string",
+                "value": "1-3 Crew Shaken"
+            },
+            {
+                "type": "string",
+                "value": "1-3 Crew Shaken"
+            },
+            {
+                "type": "string",
+                "value": "4 Crew Stunned"
+            },
+            {
+                "type": "string",
+                "value": "5 Weapon Destroyed"
+            },
+            {
+                "type": "string",
+                "value": "6 Immobilized"
+            }
+        ]
+    }
+}
 
 const ap2TableDie = {
     "type": "die",
     "sides": {
         "type": "set",
         "elements": [
-            2,
-            3,
-            4,
-            5,
-            6,
-            7
+            {
+                "type": "string",
+                "value": "1-3 Crew Shaken"
+            },
+            {
+                "type": "string",
+                "value": "1-3 Crew Shaken"
+            },
+            {
+                "type": "string",
+                "value": "4 Crew Stunned"
+            },
+            {
+                "type": "string",
+                "value": "5 Weapon Destroyed"
+            },
+            {
+                "type": "string",
+                "value": "6 Immobilized"
+            },
+            {
+                "type": "string",
+                "value": "7+ Explodes"
+            }
         ]
     }
 }
@@ -280,13 +330,27 @@ const ap1TableDie = {
     "sides": {
         "type": "set",
         "elements": [
-            3,
-            4,
-            5,
-            6,
-            7,
-            8
-        ]
+            {
+                "type": "string",
+                "value": "1-3 Crew Shaken"
+            },
+            {
+                "type": "string",
+                "value": "4 Crew Stunned"
+            },
+            {
+                "type": "string",
+                "value": "5 Weapon Destroyed"
+            },
+            {
+                "type": "string",
+                "value": "6 Immobilized"
+            },
+            {
+                "type": "string",
+                "value": "7+ Explodes"
+            }
+            ]
     }
 }
 
@@ -314,7 +378,7 @@ function DisplayAsDamageTable(roll) {
             4,
             {
                 "type": "string",
-                "value": "4\tCrew Stunned"
+                "value": "4 Crew Stunned"
             },
             5,
             {
@@ -337,7 +401,7 @@ function DisplayAsDamageTable(roll) {
 
 
 module.exports = {
-    d6, twoD6kh, ap1TableDie, ap2TableDie, d3,
+    d6, twoD6kh, damageTableDie, ap1TableDie, ap2TableDie, d3,
     makeDiceCloudy, filter_to_value, reroll_less_than_threshold, rendingPenRoll,
     add_independent_condition,
     at_or_above_threshold, at_threshold, above_threshold, boost_damage, on_x_up,

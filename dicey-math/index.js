@@ -1,6 +1,6 @@
 let parser;
 const {
-    d6, twoD6kh, ap1TableDie, ap2TableDie, d3,
+    d6, twoD6kh, damageTableDie, ap1TableDie, ap2TableDie, d3,
     makeDiceCloudy, filter_to_value, reroll_less_than_threshold, rendingPenRoll,
     add_independent_condition,
     at_or_above_threshold, at_threshold, above_threshold, boost_damage, on_x_up,
@@ -137,7 +137,7 @@ class ParseResult {
                     "text": `Lost hull points on ${target.name} (A${target.t}) from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength}, AP ${weapon_ap} ${special_rules_text} weapon`,
                 }
 
-                let damage_table_die = d6
+                let damage_table_die = damageTableDie
                 if (weapon_ap === 2) {
                     damage_table_die = ap2TableDie
                 }
@@ -145,11 +145,15 @@ class ParseResult {
                     damage_table_die = ap1TableDie
                 }
 
-                const damage_table_roll = multiply(pen, damage_table_die)
                 this.parsed.body[output_counter++] = {
                     "type": "output",
-                    "expression": n_dice(DisplayAsDamageTable(damage_table_roll), n_dice(pen, num_shots)),
-                    "text": `Damage table effects on ${target.name} over ${num_shots} shots`,
+                    "expression": n_dice(pen, num_shots),
+                    "text": `Penetrating hits for ${target.name} over ${num_shots} shots`,
+                }
+                this.parsed.body[output_counter++] = {
+                    "type": "output",
+                    "expression": damage_table_die,
+                    "text": `Die for each of those pen hits (do the math yourself because I can't right now)`,
                 }
                 continue;
             }
