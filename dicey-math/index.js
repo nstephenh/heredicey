@@ -3,7 +3,7 @@ let parser;
 try {
   parser = require("../pegjs-loader.js!./parser.js");
 } catch (e) {
-  parser = require("pegjs").generate(require("./parser.js"));
+  parser = require("peggy").generate(require("./parser.js"));
 }
 
 let { debug, valueize, keyComp } = require("./utils");

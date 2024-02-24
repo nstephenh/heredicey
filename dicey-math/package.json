@@ -9,7 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "pegjs": "^0.10.0"
+    "peggy": "^4.0.1"
   },
   "devDependencies": {
     "jest": "^27.0.6",
