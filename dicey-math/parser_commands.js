@@ -92,7 +92,7 @@ function filter_to_value(cloud_or_die, op, val) {
 
 /**
  * @param {{type: string}} dice A die or expression that we can roll
- * @param {{number}} threshold number to reroll if we're under
+ * @param {number} threshold number to reroll if we're under
  */
 function reroll_less_than_threshold(dice, threshold) {
     return {
@@ -101,6 +101,7 @@ function reroll_less_than_threshold(dice, threshold) {
         "m": "ro",
         "op": "<",
         "right": threshold,
+        "text": `Rerolling {left} less than ${threshold}`
     }
 }
 
@@ -166,7 +167,9 @@ function at_or_above_threshold(dice, target_number) {
         "left": dice,
         "right": target_number,
         "m": "cs",
-        "op": ">="
+        "op": ">=",
+        "text": `Counting {left} >= ${target_number}`
+
     }
 }
 
@@ -177,7 +180,8 @@ function at_threshold(dice, target_number) {
         "left": dice,
         "right": target_number,
         "m": "cs",
-        "op": "=="
+        "op": "==",
+        "text": `Counting {left} equal to ${target_number}`
     }
 }
 
@@ -188,7 +192,9 @@ function above_threshold(dice, target_number) {
         "left": dice,
         "right": target_number,
         "m": "cs",
-        "op": ">"
+        "op": ">",
+        "text": `Counting {left} above ${target_number}`
+
     }
 }
 
@@ -227,7 +233,8 @@ function n_dice(expression, dice) {
     return {
         "type": "call",
         "name": "repeat",
-        "args": [expression, dice]
+        "args": [expression, dice],
+        "text": `Repeating ${dice} times`
     }
 }
 
