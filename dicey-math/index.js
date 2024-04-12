@@ -72,6 +72,7 @@ class ParseResult {
             {name: "Cataphractii", t: 4, save: 2, invuln: 4},
             {name: "Rhino", t: 11},
         ]) {
+          console.log(`Vs ${target.name}`)
 
 
             let special_rules_text_arr = []
@@ -191,18 +192,23 @@ class ParseResult {
             }
 
             // display_wound is all wounding hits, no matter if they're special or not.
-            const display_wound = multiply_odds(successful_hit, on_x_up(to_wound_t_n))
+            let wound_die = d6;
+            let to_wound_description = `Wounding on ${to_wound_t_n}+`
+            if (this.parsed.input.shred){
+              wound_die = reroll_less_than_threshold(d6, to_wound_t_n)
+              to_wound_description += `, rerolling failed wounds from Shred`
+              special_rules_text_arr.push("Shred")
+            }
 
-
-            console.log("Wounding on " + to_wound_t_n)
+            console.log(to_wound_description)
 
             let resolve_at_ap2_threshold = Math.min(this.parsed.input.breaching, this.parsed.input.rending)
-
+            let regular_wound_threshold = to_wound_t_n
             if (resolve_at_ap2_threshold < 7) {
                 const number_of_ap2_sides = (7 - resolve_at_ap2_threshold)
                 console.log("Regular wounding on " + (7 - to_wound_t_n - number_of_ap2_sides) + " sides")
-                to_wound_t_n = to_wound_t_n + number_of_ap2_sides
-                console.log("Therefore, regular wounding on a " + to_wound_t_n + "+")
+                regular_wound_threshold = to_wound_t_n + number_of_ap2_sides
+                console.log("Therefore, regular wounding on a " + regular_wound_threshold + "+")
                 console.log("AP2 on a " + resolve_at_ap2_threshold + "+")
                 if (this.parsed.input.breaching < 7) {
                     special_rules_text_arr.push(`Breaching (${this.parsed.input.breaching}+)`)
@@ -219,8 +225,8 @@ class ParseResult {
             }
 
             // Roll to wound
-            const no_special_rule_wounds = multiply_odds(successful_hit, on_x_up(to_wound_t_n))
-            const ap2_wounds = multiply_odds(successful_hit, on_x_up(resolve_at_ap2_threshold))
+            const no_special_rule_wounds = multiply_odds(successful_hit, at_or_above_threshold(wound_die,regular_wound_threshold))
+            const ap2_wounds = multiply_odds(successful_hit, at_or_above_threshold(wound_die,resolve_at_ap2_threshold))
 
             // Roll saves
             const failed_saves = multiply_odds(no_special_rule_wounds, failed_target_number(target.save))
@@ -238,31 +244,32 @@ class ParseResult {
                     "expression": n_dice(successful_hit, num_shots),
                     "text": `Hits from ${num_shots} shots at BS ${bal_skill}`,
                 }
-                this.parsed.body[output_counter++] = {
+              const display_wound = multiply_odds(successful_hit, on_x_up(to_wound_t_n))
+              this.parsed.body[output_counter++] = {
                     "type": "output",
                     "expression": n_dice(display_wound, num_shots),
                     "text": `Wounds from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength} weapon on a T ${target.t} target`,
                 }
+              if (resolve_at_ap2_threshold < 7) {
+                this.parsed.body[output_counter++] = {
+                  "type": "output",
+                  "expression": n_dice(no_special_rule_wounds, num_shots),
+                  "text": `Non-ap2 wounds`,
+                }
+                this.parsed.body[output_counter++] = {
+                  "type": "output",
+                  "expression": n_dice(ap2_wounds, num_shots),
+                  "text": `Wounds at ap2`,
+                }
+              }
             }
-
             this.parsed.body[output_counter++] = {
                 "type": "output",
                 "expression": n_dice(final_damage, num_shots),
                 "text": `Unsaved wounds on ${target.name} (T${target.t}, ${save_description}) from ${num_shots} shots at BS ${bal_skill}, STR ${weapon_strength}, AP ${weapon_ap} ${special_rules_text} weapon`,
             }
 
-            // if (breaching_value < 7) {
-            //     this.parsed.body[output_counter++] = {
-            //         "type": "output",
-            //         "expression": n_dice(failed_saves, num_shots),
-            //         "text": `Non-breaching wounds`,
-            //     }
-            //     this.parsed.body[output_counter++] = {
-            //         "type": "output",
-            //         "expression": n_dice(wounds_from_breaching, num_shots),
-            //         "text": `Wounds from Breaching`,
-            //     }
-            // }
+
         }
         console.log("After processing", this.parsed)
 
