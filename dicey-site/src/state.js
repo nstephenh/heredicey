@@ -12,7 +12,7 @@ export let query = atom({key: "query", default: "output 3d6"});
 export let calculatorMode = atom({key: "calculatorMode", default: false})
 
 
-export let weaponName = atom({key: "weaponName", default: "Bolt Pistol"})
+export let weaponName = atom({key: "weaponName", default: "Asphyx Bolt Pistol"})
 export let ws_or_bs = atom({key: "ws_or_bs", default: "4"})
 export let str = atom({key: "str", default: "4"})
 export let ap = atom({key: "ap", default: "5"})
