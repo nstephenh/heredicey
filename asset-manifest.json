@@ -1,0 +1,28 @@
+{
+  "files": {
+    "main.css": "/heredicey/static/css/main.e6c13ad2.css",
+    "main.js": "/heredicey/static/js/main.7d95dd99.js",
+    "static/js/132.9e494688.chunk.js": "/heredicey/static/js/132.9e494688.chunk.js",
+    "static/js/45.920f729d.chunk.js": "/heredicey/static/js/45.920f729d.chunk.js",
+    "static/js/684.d7ee55e8.chunk.js": "/heredicey/static/js/684.d7ee55e8.chunk.js",
+    "static/js/161.00b4e45a.chunk.js": "/heredicey/static/js/161.00b4e45a.chunk.js",
+    "static/js/777.76acd1a7.chunk.js": "/heredicey/static/js/777.76acd1a7.chunk.js",
+    "static/js/359.39786d66.chunk.js": "/heredicey/static/js/359.39786d66.chunk.js",
+    "static/js/478.6d5e31dd.chunk.js": "/heredicey/static/js/478.6d5e31dd.chunk.js",
+    "service-worker.js": "/heredicey/service-worker.js",
+    "static/media/docs.md": "/heredicey/static/media/docs.c701d5ba729eba268f6b.md",
+    "static/media/functions.md": "/heredicey/static/media/functions.2103e233b512174adf8b.md",
+    "static/media/about.md": "/heredicey/static/media/about.db80528d1f97c8eda562.md",
+    "index.html": "/heredicey/index.html",
+    "static/media/articles.md": "/heredicey/static/media/articles.f7c0db09b177dc845864.md",
+    "static/media/examples.md": "/heredicey/static/media/examples.91f79ef81250f61fd80e.md",
+    "main.e6c13ad2.css.map": "/heredicey/static/css/main.e6c13ad2.css.map",
+    "main.7d95dd99.js.map": "/heredicey/static/js/main.7d95dd99.js.map",
+    "132.9e494688.chunk.js.map": "/heredicey/static/js/132.9e494688.chunk.js.map",
+    "478.6d5e31dd.chunk.js.map": "/heredicey/static/js/478.6d5e31dd.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.7d95dd99.js"
+  ]
+}
