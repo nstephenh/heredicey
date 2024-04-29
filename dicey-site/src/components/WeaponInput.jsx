@@ -23,6 +23,7 @@ export default function WeaponInput() {
   const [str, setStr] = useRecoilState(state.str);
   const [ap, setAp] = useRecoilState(state.ap);
   const [shots, setShots] = useRecoilState(state.shots);
+  const [template, setTemplate] = useRecoilState(state.template);
   const [twinLinked, setTwinLinked] = useRecoilState(state.twinLinked);
 
   const [breaching, setBreaching] = useRecoilState(state.breaching);
@@ -78,13 +79,24 @@ export default function WeaponInput() {
         />
         <TextField
           id="outlined-shots"
-          label="Shots"
+          label= { template ? "Hits with template" : "Shots"}
           type="number"
           value={shots}
           InputLabelProps={{
             shrink: true,
           }}
           onChange={(e) => setShots(e.target.value)}
+        />
+        <FormControlLabel
+          value="top"
+          control={
+            <Checkbox
+              id="template"
+              checked={template}
+              onChange={(e) => setTemplate(e.target.checked)}
+            />}
+          label="Template"
+          labelPlacement="top"
         />
         <FormControlLabel
           value="top"

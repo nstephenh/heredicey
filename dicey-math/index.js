@@ -51,7 +51,9 @@ class ParseResult {
 
         const bal_skill = this.parsed.input.ws_or_bs; //X+ to hit
         const to_hit = 7 - bal_skill;
-        console.log("Hitting on " + to_hit)
+        if (!this.parsed.input.template){
+          console.log("Hitting on " + to_hit)
+        }
 
 
         const num_shots = this.parsed.input.shots;
@@ -83,6 +85,11 @@ class ParseResult {
                 // future special rules that trigger of the to-hit roll.
                 successful_hit = at_or_above_threshold(reroll_less_than_threshold(d6, to_hit), to_hit)
                 special_rules_text_arr.push(`Twin-linked`)
+            }
+            if (this.parsed.input.template){
+              console.log("auto-hitting with a template")
+              successful_hit = 1
+              special_rules_text_arr.push("Auto-hitting due to blast or template")
             }
 
             //Handling for vehicles

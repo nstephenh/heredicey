@@ -11,12 +11,13 @@ export let query = atom({key: "query", default: "output 3d6"});
 
 export let calculatorMode = atom({key: "calculatorMode", default: false})
 
-
 export let weaponName = atom({key: "weaponName", default: "Asphyx Bolt Pistol"})
 export let ws_or_bs = atom({key: "ws_or_bs", default: "4"})
 export let str = atom({key: "str", default: "4"})
 export let ap = atom({key: "ap", default: "5"})
 export let shots = atom({key: "shots", default: "1"})
+
+export let template = atom({key: "template", default: false})
 
 export let twinLinked = atom({key: "twinLinked", default: false})
 export let breaching = atom({key: "breaching", default: "7"})
@@ -51,6 +52,7 @@ export let parsed = selector({
             str: Number(get(str)),
             ap: Number(get(ap)),
             shots: Number(get(shots)),
+            template: get(template),
             twinLinked: get(twinLinked),
 
             breaching: Number(get(breaching)),
